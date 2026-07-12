@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>NORTE</title>
+
+  <!-- PWA sin service worker (SISTEMA.md §8.5): instala con manifest + meta -->
+  <link rel="manifest" href="./manifest.webmanifest">
+  <meta name="theme-color" content="#E6E8EB">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="NORTE">
+  <link rel="apple-touch-icon" href="./icons/icon-180.png">
+  <link rel="icon" href="./icons/icon-180.png">
+
+  <link rel="stylesheet" href="./css/estilos.css">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ============ HOY ============ -->
+  <section class="pantalla visible" id="pantalla-hoy">
+    <div class="cabecera">
+      <div>
+        <p class="fecha" id="hoy-fecha"></p>
+        <h1 id="hoy-saludo"></h1>
+      </div>
+      <button class="btn-ajustes" data-ruta="ajustes" aria-label="Ajustes">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M10 2.5v2M10 15.5v2M2.5 10h2M15.5 10h2M4.7 4.7l1.4 1.4M13.9 13.9l1.4 1.4M15.3 4.7l-1.4 1.4M6.1 13.9l-1.4 1.4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+
+    <div class="tarjeta vacio">
+      <h2>La fundación está puesta.</h2>
+      <p>Todavía no hay motor del día: llega en la próxima fase. Por ahora podés instalar la app, recorrer la navegación y verificar la versión en Ajustes.</p>
+    </div>
+  </section>
+
+  <!-- ============ BIBLIOTECA ============ -->
+  <section class="pantalla" id="pantalla-biblioteca">
+    <div class="cabecera"><h1 class="titulo-pantalla">Biblioteca</h1></div>
+    <input class="campo-busqueda" type="search" placeholder="Buscar (llega con el contenido)" disabled>
+    <div class="tarjeta vacio">
+      <p>Acá va a vivir todo el conocimiento: gym, movilidad, respiración, cara, recetas, suplementos. Se llena fase a fase.</p>
+    </div>
+  </section>
+
+  <!-- ============ TUYO ============ -->
+  <section class="pantalla" id="pantalla-tuyo">
+    <div class="cabecera"><h1 class="titulo-pantalla">Tuyo</h1></div>
+    <div class="tarjeta vacio">
+      <p>Tus tareas, notas y recordatorios. Este espacio se activa más adelante.</p>
+    </div>
+  </section>
+
+  <!-- ============ PROGRESO ============ -->
+  <section class="pantalla" id="pantalla-progreso">
+    <div class="cabecera"><h1 class="titulo-pantalla">Progreso</h1></div>
+    <div class="tarjeta vacio">
+      <p>Peso, fuerza, pasos, ánimo, sueño y Fondo Brasil. Se empieza a medir cuando el motor esté andando.</p>
+    </div>
+  </section>
+
+  <!-- ============ AJUSTES ============ -->
+  <section class="pantalla" id="pantalla-ajustes">
+    <div class="cabecera"><h1 class="titulo-pantalla">Ajustes</h1></div>
+
+    <div class="tarjeta">
+      <div class="fila-dato"><span>Versión</span><span class="valor" id="dato-version"></span></div>
+      <div class="fila-dato"><span>Build</span><span class="valor" id="dato-build"></span></div>
+      <div class="fila-dato"><span>Schema de datos</span><span class="valor" id="dato-schema"></span></div>
+    </div>
+
+    <div class="tarjeta">
+      <h2>Tus datos</h2>
+      <p>Todo vive en este teléfono. Hacé un backup cada tanto.</p>
+      <div class="acciones-col">
+        <button class="btn btn-primario" id="btn-exportar">Exportar backup (JSON)</button>
+        <button class="btn btn-secundario" id="btn-importar">Importar backup</button>
+        <input type="file" id="input-importar" accept="application/json,.json" hidden>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ============ Hoja de registro rápido ============ -->
+<div class="hoja-fondo" id="hoja-registro">
+  <div class="hoja">
+    <h2>Registro rápido</h2>
+    <p>Acá vas a cargar comida, peso, pasos, ánimo y más en un toque. Llega en la próxima fase.</p>
+    <button class="btn btn-secundario" id="btn-cerrar-hoja" style="width: 100%;">Cerrar</button>
+  </div>
+</div>
+
+<!-- ============ Nav ============ -->
+<nav>
+  <div class="nav-inner">
+    <button class="nav-item activo" data-ruta="hoy">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7.25" stroke="currentColor" stroke-width="1.5"/><path d="M10 6.5V10L12.5 11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      Hoy
+    </button>
+    <button class="nav-item" data-ruta="biblioteca">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 4.5C8.5 3.3 6.5 3 4 3v12.5c2.5 0 4.5.3 6 1.5 1.5-1.2 3.5-1.5 6-1.5V3c-2.5 0-4.5.3-6 1.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M10 4.5V17" stroke="currentColor" stroke-width="1.5"/></svg>
+      Biblio
+    </button>
+    <button class="nav-item" id="btn-mas" aria-label="Registro rápido">
+      <span class="nav-mas"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 3.5V14.5M3.5 9H14.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></span>
+    </button>
+    <button class="nav-item" data-ruta="tuyo">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3.5" y="4.5" width="13" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M7 8.5H13M7 12H11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      Tuyo
+    </button>
+    <button class="nav-item" data-ruta="progreso">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 16V11M8.5 16V8M13 16V10.5M17 16V5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      Progreso
+    </button>
+  </div>
+</nav>
+
+<script src="./js/version.js"></script>
+<script src="./js/store.js"></script>
+<script src="./js/app.js"></script>
+</body>
+</html>
