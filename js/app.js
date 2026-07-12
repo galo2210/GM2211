@@ -23,7 +23,7 @@
   document.getElementById('hoy-saludo').textContent = saludo();
 
   // ---------- Navegación ----------
-  const RUTAS = ['hoy', 'biblioteca', 'tuyo', 'progreso', 'ajustes', 'cierre'];
+  const RUTAS = ['hoy', 'biblioteca', 'tuyo', 'progreso', 'ajustes', 'cierre', 'gym'];
 
   function navegar() {
     const ruta = location.hash.replace('#/', '') || 'hoy';
@@ -37,6 +37,9 @@
     if (destino === 'hoy') Hoy.renderHoy();
     if (destino === 'cierre') Hoy.renderCierre();
     if (destino === 'progreso') Hoy.renderProgreso();
+    if (destino === 'tuyo') Tuyo.render();
+    if (destino === 'gym') Gym.render();
+    if (destino !== 'gym') Gym.pararTimer();
     window.scrollTo(0, 0);
   }
 
@@ -47,17 +50,7 @@
   navegar();
 
   // ---------- Hoja de registro rápido ----------
-  const hoja = document.getElementById('hoja-registro');
-  document.getElementById('btn-mas').addEventListener('click', () => {
-    hoja.classList.add('visible');
-  });
-  document.getElementById('btn-cerrar-hoja').addEventListener('click', () => {
-    hoja.classList.remove('visible');
-  });
-  hoja.addEventListener('click', (e) => {
-    if (e.target === hoja) hoja.classList.remove('visible');
-  });
-  Hoy.initRegistro();
+  Registro.init();
 
   // ---------- Ajustes ----------
   document.getElementById('dato-version').textContent = 'v' + VERSION + ' · ' + FASE;

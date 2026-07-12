@@ -337,6 +337,155 @@ input, select, textarea { font-size: 16px; font-family: var(--sans); }
 .registro-fila .btn { flex: none; }
 .registro-fila .animo-fila { flex: 1; margin-top: 0; }
 
+/* ---------- Gym ---------- */
+#gym-contenido { display: flex; flex-direction: column; gap: 12px; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  padding: 0 14px;
+  min-height: 40px;
+  border-radius: 999px;
+  border: 1px solid var(--borde);
+  background: var(--superficie);
+  color: var(--texto-2);
+  cursor: pointer;
+}
+.chip.activo {
+  border-color: var(--acento);
+  background: var(--acento-tenue);
+  color: var(--acento);
+  font-weight: 700;
+}
+.chip:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+
+.ejercicio {
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  padding: 13px 14px;
+}
+.ejercicio.hecho { border-color: var(--verde); }
+.ej-cabecera { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+.ej-cabecera .estado {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1.5px solid var(--texto-3);
+  display: grid;
+  place-items: center;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--texto-3);
+}
+.ejercicio.hecho .ej-cabecera .estado {
+  border-color: var(--verde);
+  background: var(--verde-tenue);
+  color: var(--verde);
+}
+.ej-cabecera .cuerpo { flex: 1; min-width: 0; }
+.ej-cabecera .titulo { font-size: 15.5px; font-weight: 600; margin: 0; line-height: 1.3; }
+.ejercicio.hecho .ej-cabecera .titulo { color: var(--texto-2); }
+.ej-cabecera .meta { font-family: var(--mono); font-size: 12.5px; color: var(--texto-3); margin: 3px 0 0; line-height: 1.45; }
+.ej-cabecera .meta strong { color: var(--acento); font-weight: 600; }
+
+.ej-acciones { display: flex; gap: 8px; margin-top: 10px; }
+.btn-mini {
+  flex: 1;
+  min-height: 40px;
+  border-radius: 8px;
+  border: 1px solid var(--borde);
+  background: transparent;
+  color: var(--texto-2);
+  font-family: var(--mono);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 0 6px;
+}
+.btn-mini:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+
+.ej-panel {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--borde);
+}
+.ej-panel p { font-size: 14px; color: var(--texto-2); line-height: 1.5; margin: 0 0 8px; }
+.ej-panel p strong { color: var(--texto-1); }
+.ej-panel .porque-ej { padding-top: 6px; }
+.ej-panel .variantes-ej { font-family: var(--mono); font-size: 12.5px; }
+.ej-panel .registro-fila { border-bottom: none; padding: 0; }
+.ej-timer {
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--acento);
+  margin: 10px 0 0;
+  text-align: center;
+}
+
+/* ---------- Registro rápido: grilla de tipos ---------- */
+.registro-grilla {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.registro-opcion {
+  min-height: 52px;
+  border-radius: 10px;
+  border: 1px solid var(--borde);
+  background: var(--fondo);
+  color: var(--texto-1);
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.registro-opcion:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+.btn-volver {
+  background: none;
+  border: none;
+  color: var(--acento);
+  font-family: var(--mono);
+  font-size: 13px;
+  padding: 0 0 10px;
+  cursor: pointer;
+}
+.hoja-ayuda { font-size: 14px; color: var(--texto-2); line-height: 1.45; margin: 0 0 12px; }
+.campo-texto {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--borde);
+  background: var(--fondo);
+  color: var(--texto-1);
+  font-family: var(--sans);
+  resize: vertical;
+}
+.registro-fila select {
+  flex: 1;
+  min-width: 0;
+  min-height: 46px;
+}
+
+/* ---------- Tuyo ---------- */
+#tuyo-contenido { display: flex; flex-direction: column; gap: 8px; }
+.btn-borrar {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--borde);
+  background: transparent;
+  color: var(--texto-3);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+.tarjeta.nota p { margin: 0 0 10px; white-space: pre-wrap; }
+.nota-pie { display: flex; justify-content: space-between; align-items: center; }
+.nota-pie .mono { font-family: var(--mono); font-size: 12px; color: var(--texto-3); }
+
 /* ---------- Hoja modal (registro rápido) ---------- */
 .hoja-fondo {
   position: fixed;

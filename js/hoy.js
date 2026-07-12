@@ -20,19 +20,33 @@ const Hoy = (() => {
     let html = '';
 
     html += tarjetaParaAhora(dia);
+    html += htmlTareasDeHoy();
     ['manana', 'dia', 'noche'].forEach((bloque) => {
       html += htmlBloque(dia, bloque);
     });
     cont.innerHTML = html;
 
-    // Toques: círculo de estado marca hecha/pendiente.
+    // Toques: el círculo marca hecha/pendiente; el cuerpo de una pieza de gym abre la sesión.
     cont.querySelectorAll('[data-uid]').forEach((el) => {
-      el.addEventListener('click', () => {
+      el.addEventListener('click', (e) => {
         const pieza = dia.piezas.find((x) => x.uid === el.dataset.uid);
         if (!pieza) return;
+        const esGym = typeof GYM_SESIONES !== 'undefined' && GYM_SESIONES[pieza.ref];
+        if (esGym && !e.target.closest('.estado')) {
+          location.hash = '#/gym';
+          return;
+        }
         pieza.estado = pieza.estado === 'hecha' ? 'pendiente' : 'hecha';
         Motor.guardarDia(dia);
         renderHoy();
+      });
+    });
+
+    cont.querySelectorAll('[data-tarea-hoy]').forEach((el) => {
+      el.addEventListener('click', () => {
+        const tareas = Store.leer('tareas', []);
+        const t = tareas.find((x) => x.id === el.dataset.tareaHoy);
+        if (t) { t.hecha = true; Store.guardar('tareas', tareas); renderHoy(); }
       });
     });
 
@@ -83,6 +97,20 @@ const Hoy = (() => {
       '<button class="btn btn-primario" id="btn-sugerencia-hecha" data-uid="' + pieza.uid + '">Hecha</button>' +
       '<button class="btn btn-secundario" id="btn-sugerencia-otra" data-uid="' + pieza.uid + '">Otra cosa</button>' +
       '</div></div>';
+  }
+
+  function htmlTareasDeHoy() {
+    const tareas = Tuyo.tareasDeHoy();
+    if (tareas.length === 0) return '';
+    let html = '<section class="bloque"><div class="bloque-cabecera"><h3>Tuyo hoy</h3>' +
+      '<span class="conteo">' + tareas.length + '</span></div>';
+    tareas.forEach((t) => {
+      html += '<div class="pieza" data-tarea-hoy="' + t.id + '">' +
+        '<span class="estado"></span>' +
+        '<div class="cuerpo"><p class="titulo">' + esc(t.texto) + '</p>' +
+        '<p class="meta">Tarea tuya · tocá para marcarla</p></div></div>';
+    });
+    return html + '</section>';
   }
 
   function htmlBloque(dia, bloque) {
@@ -208,50 +236,23 @@ const Hoy = (() => {
     });
   }
 
-  // ---------- Registro rápido ----------
+  // ---------- Registro (lo usa el cierre para el ánimo) ----------
   function guardarRegistro(tipo, valor) {
-    const registros = Store.leer('registros', []);
-    registros.push({ id: Store.nuevoId(), tipo, valor, fecha: new Date().toISOString() });
-    Store.guardar('registros', registros);
-  }
-
-  function initRegistro() {
-    const hoja = document.getElementById('hoja-registro');
-
-    document.getElementById('btn-guardar-peso').addEventListener('click', () => {
-      const input = document.getElementById('input-peso');
-      const v = parseFloat(String(input.value).trim().replace(',', '.'));
-      if (!v || v < 30 || v > 200) { alert('Revisá el peso: tiene que ser un número en kg.'); return; }
-      guardarRegistro('peso', v);
-      input.value = '';
-      hoja.classList.remove('visible');
-    });
-
-    document.getElementById('btn-guardar-pasos').addEventListener('click', () => {
-      const input = document.getElementById('input-pasos');
-      const v = parseInt(String(input.value).replace(/[^\d]/g, ''), 10);
-      if (!v || v < 1 || v > 100000) { alert('Revisá los pasos: número de la app Salud.'); return; }
-      guardarRegistro('pasos', v);
-      input.value = '';
-      hoja.classList.remove('visible');
-    });
-
-    document.querySelectorAll('#hoja-registro .btn-animo').forEach((b) => {
-      b.addEventListener('click', () => {
-        guardarRegistro('animo', Number(b.dataset.animo));
-        hoja.classList.remove('visible');
-      });
-    });
+    Registro.guardarRegistro(tipo, valor);
   }
 
   // ---------- Progreso ----------
-  const ETIQUETA_TIPO = { peso: 'Peso', pasos: 'Pasos', animo: 'Ánimo' };
+  const ETIQUETA_TIPO = {
+    peso: 'Peso', pasos: 'Pasos', animo: 'Ánimo',
+    sueno: 'Sueño', marihuana: 'Marihuana', gasto: 'Gasto'
+  };
+  const MARIHUANA_TEXTO = { 0: 'Nada', 0.5: 'Medio', 1: 'Entero' };
 
   function renderProgreso() {
     const cont = document.getElementById('progreso-lista');
-    const registros = Store.leer('registros', []).slice(-10).reverse();
+    const registros = Store.leer('registros', []).slice(-15).reverse();
     if (registros.length === 0) {
-      cont.innerHTML = '<div class="tarjeta vacio"><p>Todavía no registraste nada. Con el (+) cargás peso, pasos o ánimo en un toque.</p></div>';
+      cont.innerHTML = '<div class="tarjeta vacio"><p>Todavía no registraste nada. Con el (+) cargás peso, pasos, ánimo, sueño y más en un toque.</p></div>';
       return;
     }
     let html = '<div class="tarjeta">';
@@ -261,12 +262,17 @@ const Hoy = (() => {
       let valor = String(r.valor);
       if (r.tipo === 'peso') valor += ' kg';
       if (r.tipo === 'animo') valor += ' / 5';
-      html += '<div class="fila-dato"><span>' + fecha + ' · ' + ETIQUETA_TIPO[r.tipo] + '</span>' +
+      if (r.tipo === 'sueno') valor += ' hs';
+      if (r.tipo === 'marihuana') valor = MARIHUANA_TEXTO[r.valor] !== undefined ? MARIHUANA_TEXTO[r.valor] : valor;
+      if (r.tipo === 'gasto' && r.valor && typeof r.valor === 'object') {
+        valor = '$' + Number(r.valor.monto).toLocaleString('es-AR') + ' · ' + r.valor.categoria;
+      }
+      html += '<div class="fila-dato"><span>' + fecha + ' · ' + (ETIQUETA_TIPO[r.tipo] || r.tipo) + '</span>' +
         '<span class="valor">' + esc(valor) + '</span></div>';
     });
     html += '</div><div class="tarjeta vacio"><p>Los gráficos llegan más adelante. Por ahora, que los datos se acumulen.</p></div>';
     cont.innerHTML = html;
   }
 
-  return { renderHoy, renderCierre, renderProgreso, initRegistro };
+  return { renderHoy, renderCierre, renderProgreso };
 })();
