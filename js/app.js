@@ -23,7 +23,7 @@
   document.getElementById('hoy-saludo').textContent = saludo();
 
   // ---------- Navegación ----------
-  const RUTAS = ['hoy', 'biblioteca', 'tuyo', 'progreso', 'ajustes'];
+  const RUTAS = ['hoy', 'biblioteca', 'tuyo', 'progreso', 'ajustes', 'cierre'];
 
   function navegar() {
     const ruta = location.hash.replace('#/', '') || 'hoy';
@@ -34,6 +34,9 @@
     document.querySelectorAll('.nav-item[data-ruta]').forEach((b) => {
       b.classList.toggle('activo', b.dataset.ruta === destino);
     });
+    if (destino === 'hoy') Hoy.renderHoy();
+    if (destino === 'cierre') Hoy.renderCierre();
+    if (destino === 'progreso') Hoy.renderProgreso();
     window.scrollTo(0, 0);
   }
 
@@ -43,7 +46,7 @@
   });
   navegar();
 
-  // ---------- Hoja de registro rápido (placeholder F1) ----------
+  // ---------- Hoja de registro rápido ----------
   const hoja = document.getElementById('hoja-registro');
   document.getElementById('btn-mas').addEventListener('click', () => {
     hoja.classList.add('visible');
@@ -54,6 +57,7 @@
   hoja.addEventListener('click', (e) => {
     if (e.target === hoja) hoja.classList.remove('visible');
   });
+  Hoy.initRegistro();
 
   // ---------- Ajustes ----------
   document.getElementById('dato-version').textContent = 'v' + VERSION + ' · ' + FASE;
