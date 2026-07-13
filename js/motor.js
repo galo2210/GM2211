@@ -11,7 +11,15 @@ const Motor = (() => {
   }
 
   function plantilla(ref) {
-    return RUTINA_BASE.find((p) => p.id === ref) || null;
+    return RUTINA_BASE.find((p) => p.id === ref) ||
+      Store.leer('piezas-propias', []).find((p) => p.id === ref) || null;
+  }
+
+  // Rutina vigente: las piezas base que no fueron desactivadas + las creadas por Galo.
+  function plantillasActivas() {
+    const desactivadas = Store.leer('rutina-config', {});
+    return RUTINA_BASE.filter((p) => desactivadas[p.id] !== false)
+      .concat(Store.leer('piezas-propias', []));
   }
 
   // Devuelve el día de hoy; si no existe todavía, lo genera desde la rutina
@@ -22,7 +30,7 @@ const Motor = (() => {
     if (dias[iso]) return dias[iso];
 
     const dow = fecha.getDay();
-    const piezas = RUTINA_BASE
+    const piezas = plantillasActivas()
       .filter((p) => p.dias.includes(dow))
       .map((p) => ({ uid: Store.nuevoId(), ref: p.id, estado: 'pendiente', deAyer: false }));
 
@@ -43,6 +51,35 @@ const Motor = (() => {
   function guardarDia(dia) {
     const dias = Store.leer('dias', {});
     dias[dia.fecha] = dia;
+    Store.guardar('dias', dias);
+  }
+
+  // Tras editar la rutina, rearma el día de hoy respetando lo ya marcado.
+  function regenerarHoy() {
+    const iso = fechaISO();
+    const dias = Store.leer('dias', {});
+    const viejo = dias[iso];
+    const dow = new Date().getDay();
+
+    const piezas = plantillasActivas()
+      .filter((p) => p.dias.includes(dow))
+      .map((p) => {
+        const previa = viejo && viejo.piezas.find((x) => x.ref === p.id);
+        return previa || { uid: Store.nuevoId(), ref: p.id, estado: 'pendiente', deAyer: false };
+      });
+
+    // Conserva las arrastradas de ayer que siguen teniendo plantilla.
+    if (viejo) {
+      viejo.piezas.forEach((x) => {
+        if (x.deAyer && plantilla(x.ref) && !piezas.some((y) => y.ref === x.ref)) piezas.push(x);
+      });
+    }
+
+    dias[iso] = {
+      fecha: iso, piezas,
+      cerrado: viejo ? viejo.cerrado : false,
+      animo: viejo ? viejo.animo : null
+    };
     Store.guardar('dias', dias);
   }
 
@@ -80,5 +117,5 @@ const Motor = (() => {
     return dia.piezas.filter((x) => x.estado === 'pendiente');
   }
 
-  return { fechaISO, plantilla, obtenerDia, guardarDia, bloqueActual, paraAhora, piezasDeBloque, pendientes };
+  return { fechaISO, plantilla, plantillasActivas, obtenerDia, guardarDia, regenerarHoy, bloqueActual, paraAhora, piezasDeBloque, pendientes };
 })();
