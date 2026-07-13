@@ -63,10 +63,12 @@ const Movilidad = (() => {
     });
   }
 
-  // ---------- Player ----------
+  // ---------- Player (también reproduce las meditaciones de §5.4) ----------
   function abrirPlayer(rutinaId) {
     pararTimer();
-    rutinaActual = RUTINAS_MOV.find((r) => r.id === rutinaId) || RUTINAS_MOV[0];
+    const meditaciones = typeof MEDITACIONES !== 'undefined' ? MEDITACIONES : [];
+    rutinaActual = RUTINAS_MOV.find((r) => r.id === rutinaId) ||
+      meditaciones.find((r) => r.id === rutinaId) || RUTINAS_MOV[0];
     pasoIdx = 0;
     restante = rutinaActual.pasos[0].seg;
     corriendo = false;
@@ -160,7 +162,11 @@ const Movilidad = (() => {
 
   // Si la rutina corresponde a una pieza de hoy, la marca hecha.
   function marcarPiezaDelDia(rutinaId) {
-    const ref = Object.keys(PIEZA_A_RUTINA).find((k) => PIEZA_A_RUTINA[k] === rutinaId);
+    let ref = Object.keys(PIEZA_A_RUTINA).find((k) => PIEZA_A_RUTINA[k] === rutinaId);
+    // Una meditación completa cuenta como la pieza de respiración nocturna.
+    if (!ref && typeof MEDITACIONES !== 'undefined' && MEDITACIONES.some((m) => m.id === rutinaId)) {
+      ref = 'respiracion';
+    }
     if (!ref) return;
     const dia = Motor.obtenerDia();
     const pieza = dia.piezas.find((x) => x.ref === ref && x.estado === 'pendiente');

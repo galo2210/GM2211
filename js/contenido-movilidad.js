@@ -209,6 +209,18 @@ const RUTINAS_MOV = [
     ]
   },
 
+  {
+    id: 'bajada-dormir', nombre: 'Bajada a dormir', categoria: 'Noche', dur: '20 min',
+    problemas: ['estrés'],
+    pasos: [
+      { nombre: 'Pantallas a modo cálido', seg: 60, instruccion: 'Poné el teléfono en modo cálido/nocturno y bajá las luces del depto. Lo que quedó pendiente, quedó: mañana existe.', sentir: 'La señal de que el día terminó.' },
+      { nombre: 'Descarga corporal', seg: 300, instruccion: 'Cuello suave, pecho en la puerta, colgado adelante, giro acostado. Sin apuro: 5 minutos para soltar el cuerpo.', sentir: 'La tensión del día saliendo por partes.' },
+      { nombre: 'Magnesio B6', seg: 30, instruccion: 'Tomalo ahora, con un vaso de agua.', sentir: 'Un hábito que trabaja mientras dormís.' },
+      { nombre: 'Placa dental', seg: 30, instruccion: 'Placa puesta. Los ejercicios de mandíbula fueron de día; ahora ella protege.', sentir: 'Listo para bruxar sin romper nada.' },
+      { nombre: '4-7-8 en la cama', seg: 240, instruccion: 'Acostado, luces apagadas. Inhalá 4, retené 7, exhalá 8. Repetí hasta que el timer termine — o hasta que el sueño gane antes.', sentir: 'Cada exhalación un escalón más abajo. En cama, tope 00:30.' }
+    ]
+  },
+
   // ==================== CARA (§4.5 — solo lo comprobado) ====================
   {
     id: 'mandibula', nombre: 'Mandíbula y masetero', categoria: 'Cara', dur: '3 min',
