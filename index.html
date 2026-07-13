@@ -57,6 +57,28 @@
     <div id="gym-contenido"></div>
   </section>
 
+  <!-- ============ COMIDA (receta) ============ -->
+  <section class="pantalla" id="pantalla-comida">
+    <div class="cabecera">
+      <h1 class="titulo-pantalla" id="comida-titulo">Comida</h1>
+      <button class="btn-ajustes" data-ruta="hoy" aria-label="Volver a Hoy">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4.5 4.5L13.5 13.5M13.5 4.5L4.5 13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div id="comida-contenido" style="display:flex; flex-direction:column; gap:12px;"></div>
+  </section>
+
+  <!-- ============ MI RUTINA (editor) ============ -->
+  <section class="pantalla" id="pantalla-rutina">
+    <div class="cabecera">
+      <h1 class="titulo-pantalla">Mi rutina</h1>
+      <button class="btn-ajustes" data-ruta="ajustes" aria-label="Volver a Ajustes">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4.5 4.5L13.5 13.5M13.5 4.5L4.5 13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div id="rutina-contenido" style="display:flex; flex-direction:column; gap:8px;"></div>
+  </section>
+
   <!-- ============ BIBLIOTECA ============ -->
   <section class="pantalla" id="pantalla-biblioteca">
     <div class="cabecera"><h1 class="titulo-pantalla">Biblioteca</h1></div>
@@ -86,6 +108,20 @@
       <div class="fila-dato"><span>Versión</span><span class="valor" id="dato-version"></span></div>
       <div class="fila-dato"><span>Build</span><span class="valor" id="dato-build"></span></div>
       <div class="fila-dato"><span>Schema de datos</span><span class="valor" id="dato-schema"></span></div>
+    </div>
+
+    <div class="tarjeta">
+      <h2>Mi rutina</h2>
+      <p>Prender, apagar y crear piezas del día.</p>
+      <div class="acciones-col">
+        <button class="btn btn-secundario" data-ruta="rutina">Editar mi rutina</button>
+      </div>
+    </div>
+
+    <div class="tarjeta">
+      <h2>Registro rápido (+)</h2>
+      <p>Qué opciones aparecen al tocar el (+).</p>
+      <div id="ajustes-registro-config"></div>
     </div>
 
     <div class="tarjeta">
@@ -139,10 +175,13 @@
 <script src="./js/store.js"></script>
 <script src="./js/contenido-rutina.js"></script>
 <script src="./js/contenido-gym.js"></script>
+<script src="./js/contenido-comidas.js"></script>
 <script src="./js/motor.js"></script>
 <script src="./js/registro.js"></script>
 <script src="./js/tuyo.js"></script>
 <script src="./js/gym.js"></script>
+<script src="./js/comida.js"></script>
+<script src="./js/rutina-editor.js"></script>
 <script src="./js/hoy.js"></script>
 <script src="./js/app.js"></script>
 </body>

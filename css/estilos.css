@@ -486,6 +486,59 @@ input, select, textarea { font-size: 16px; font-family: var(--sans); }
 .nota-pie { display: flex; justify-content: space-between; align-items: center; }
 .nota-pie .mono { font-family: var(--mono); font-size: 12px; color: var(--texto-3); }
 
+/* ---------- Editor de rutina ---------- */
+.pieza.editor { cursor: default; }
+.pieza.editor.apagada .cuerpo { opacity: 0.45; }
+.interruptor {
+  flex: none;
+  width: 46px;
+  height: 28px;
+  border-radius: 999px;
+  border: 1px solid var(--borde);
+  background: var(--superficie-2);
+  position: relative;
+  cursor: pointer;
+  padding: 0;
+}
+.interruptor span {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--texto-3);
+  transition: left 0.15s ease, background 0.15s ease;
+}
+.interruptor.prendido {
+  border-color: var(--acento);
+  background: var(--acento-tenue);
+}
+.interruptor.prendido span {
+  left: 21px;
+  background: var(--acento);
+}
+.interruptor:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+
+.dias-chips { display: flex; gap: 6px; margin-top: 10px; }
+.dia-chip {
+  flex: 1;
+  min-height: 40px;
+  padding: 0;
+  opacity: 0.5;
+}
+.dia-chip.activo { opacity: 1; border-color: var(--acento); background: var(--acento-tenue); color: var(--acento); font-weight: 700; }
+
+/* ---------- Recetas ---------- */
+.lista-receta {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 14.5px;
+  color: var(--texto-2);
+  line-height: 1.6;
+}
+.lista-receta li { margin-bottom: 2px; }
+
 /* ---------- Hoja modal (registro rápido) ---------- */
 .hoja-fondo {
   position: fixed;

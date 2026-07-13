@@ -36,6 +36,12 @@ const Hoy = (() => {
           location.hash = '#/gym';
           return;
         }
+        const esComida = typeof COMIDAS !== 'undefined' && COMIDAS[pieza.ref];
+        if (esComida && !e.target.closest('.estado')) {
+          Comida.abrir(pieza.ref);
+          location.hash = '#/comida';
+          return;
+        }
         pieza.estado = pieza.estado === 'hecha' ? 'pendiente' : 'hecha';
         Motor.guardarDia(dia);
         renderHoy();

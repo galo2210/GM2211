@@ -23,7 +23,7 @@
   document.getElementById('hoy-saludo').textContent = saludo();
 
   // ---------- Navegación ----------
-  const RUTAS = ['hoy', 'biblioteca', 'tuyo', 'progreso', 'ajustes', 'cierre', 'gym'];
+  const RUTAS = ['hoy', 'biblioteca', 'tuyo', 'progreso', 'ajustes', 'cierre', 'gym', 'rutina', 'comida'];
 
   function navegar() {
     const ruta = location.hash.replace('#/', '') || 'hoy';
@@ -39,6 +39,9 @@
     if (destino === 'progreso') Hoy.renderProgreso();
     if (destino === 'tuyo') Tuyo.render();
     if (destino === 'gym') Gym.render();
+    if (destino === 'rutina') RutinaEditor.render();
+    if (destino === 'comida') Comida.render();
+    if (destino === 'ajustes') Registro.renderConfig();
     if (destino !== 'gym') Gym.pararTimer();
     window.scrollTo(0, 0);
   }
