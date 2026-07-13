@@ -21,6 +21,14 @@ const Biblioteca = (() => {
       '<svg class="flecha" width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1L6 6L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>' +
       '</button>';
 
+    // Movilidad, cara y casa
+    html += '<div class="bloque-cabecera" style="margin-top:16px;"><h3>Movilidad · Cara · Casa</h3></div>' +
+      '<button class="pieza" data-ir="movilidad" style="width:100%; text-align:left; font-family:inherit;">' +
+      '<div class="cuerpo"><p class="titulo">Rutinas guiadas</p>' +
+      '<p class="meta">' + RUTINAS_MOV.length + ' rutinas con player · buscables por problema</p></div>' +
+      '<svg class="flecha" width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1L6 6L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>' +
+      '</button>';
+
     // Gym
     html += '<div class="bloque-cabecera" style="margin-top:16px;"><h3>Gym · técnica</h3></div>';
     Object.keys(GYM_SESIONES).forEach((ref) => {
@@ -44,7 +52,7 @@ const Biblioteca = (() => {
         '</button>';
     });
 
-    html += '<div class="tarjeta vacio" style="margin-top:16px;"><p>Movilidad, respiración, cara y las piezas de Aprender llegan en las próximas fases. El buscador único se prende cuando haya volumen.</p></div>';
+    html += '<div class="tarjeta vacio" style="margin-top:16px;"><p>Respiración/meditación y las piezas de Aprender llegan en la próxima fase. El buscador único se prende cuando esté todo el contenido.</p></div>';
 
     cont.innerHTML = html;
 

@@ -42,6 +42,12 @@ const Hoy = (() => {
           location.hash = '#/comida';
           return;
         }
+        const rutinaMov = typeof PIEZA_A_RUTINA !== 'undefined' && PIEZA_A_RUTINA[pieza.ref];
+        if (rutinaMov && !e.target.closest('.estado')) {
+          Movilidad.abrirPlayer(rutinaMov);
+          location.hash = '#/player';
+          return;
+        }
         pieza.estado = pieza.estado === 'hecha' ? 'pendiente' : 'hecha';
         Motor.guardarDia(dia);
         renderHoy();
