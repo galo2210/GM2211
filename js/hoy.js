@@ -48,6 +48,11 @@ const Hoy = (() => {
           location.hash = '#/player';
           return;
         }
+        const RUTA_PIEZA = { respiracion: '#/respirar', aprender: '#/aprender', foco: '#/foco' };
+        if (RUTA_PIEZA[pieza.ref] && !e.target.closest('.estado')) {
+          location.hash = RUTA_PIEZA[pieza.ref];
+          return;
+        }
         pieza.estado = pieza.estado === 'hecha' ? 'pendiente' : 'hecha';
         Motor.guardarDia(dia);
         renderHoy();
@@ -200,10 +205,31 @@ const Hoy = (() => {
       });
     }
 
+    // Marihuana: solo el dato, sin juicio (§5.2)
+    html += '<div class="tarjeta"><h2>¿Marihuana hoy?</h2>' +
+      '<div class="animo-fila">' +
+      '<button class="btn-animo" data-mari="0">Nada</button>' +
+      '<button class="btn-animo" data-mari="0.5">Medio</button>' +
+      '<button class="btn-animo" data-mari="1">Entero</button>' +
+      '</div>' +
+      '<div id="cierre-mari-como" hidden style="margin-top:10px;">' +
+      '<p style="font-size:14px; color:var(--texto-2); margin:0 0 8px;">¿Y fue de disfrute o de escape? Solo para verlo, nada más.</p>' +
+      '<div class="animo-fila">' +
+      '<button class="btn-animo" data-mari-como="disfrute">Disfrute</button>' +
+      '<button class="btn-animo" data-mari-como="escape">Escape</button>' +
+      '</div></div></div>';
+
     html += '<div class="tarjeta"><h2>¿Cómo estuvo el día?</h2>' +
       '<div class="animo-fila">' +
       [1, 2, 3, 4, 5].map((n) => '<button class="btn-animo" data-animo="' + n + '">' + n + '</button>').join('') +
       '</div></div>';
+
+    // Journaling: una pregunta rotativa, una línea (§5.5)
+    const pregunta = PREGUNTAS_CIERRE[Aprender.indiceDeHoy() % PREGUNTAS_CIERRE.length];
+    html += '<div class="tarjeta"><h2>' + esc(pregunta) + '</h2>' +
+      '<p style="font-size:13px; color:var(--texto-3); margin:0 0 10px;">Una línea. Lo primero que aparezca.</p>' +
+      '<input type="text" id="cierre-journal" class="campo-busqueda" placeholder="Escribí acá (opcional)">' +
+      '</div>';
 
     html += '<button class="btn btn-primario" id="btn-cerrar-dia" style="width:100%;">Cerrar el día</button>';
     cont.innerHTML = html;
@@ -229,10 +255,29 @@ const Hoy = (() => {
     });
 
     let animoElegido = null;
-    cont.querySelectorAll('.btn-animo').forEach((b) => {
+    cont.querySelectorAll('.btn-animo[data-animo]').forEach((b) => {
       b.addEventListener('click', () => {
         animoElegido = Number(b.dataset.animo);
-        cont.querySelectorAll('.btn-animo').forEach((x) => x.classList.remove('activo'));
+        cont.querySelectorAll('.btn-animo[data-animo]').forEach((x) => x.classList.remove('activo'));
+        b.classList.add('activo');
+      });
+    });
+
+    let mariElegida = null;
+    let mariComo = null;
+    cont.querySelectorAll('[data-mari]').forEach((b) => {
+      b.addEventListener('click', () => {
+        mariElegida = Number(b.dataset.mari);
+        cont.querySelectorAll('[data-mari]').forEach((x) => x.classList.remove('activo'));
+        b.classList.add('activo');
+        document.getElementById('cierre-mari-como').hidden = mariElegida === 0;
+        if (mariElegida === 0) mariComo = null;
+      });
+    });
+    cont.querySelectorAll('[data-mari-como]').forEach((b) => {
+      b.addEventListener('click', () => {
+        mariComo = b.dataset.mariComo;
+        cont.querySelectorAll('[data-mari-como]').forEach((x) => x.classList.remove('activo'));
         b.classList.add('activo');
       });
     });
@@ -241,8 +286,14 @@ const Hoy = (() => {
       dia.cerrado = true;
       dia.animo = animoElegido;
       Motor.guardarDia(dia);
-      if (animoElegido !== null) {
-        guardarRegistro('animo', animoElegido);
+      if (animoElegido !== null) guardarRegistro('animo', animoElegido);
+      if (mariElegida !== null) guardarRegistro('marihuana', mariComo ? { cantidad: mariElegida, como: mariComo } : mariElegida);
+      const respuesta = String(document.getElementById('cierre-journal').value).trim();
+      if (respuesta) {
+        guardarRegistro('diario', {
+          pregunta: PREGUNTAS_CIERRE[Aprender.indiceDeHoy() % PREGUNTAS_CIERRE.length],
+          respuesta
+        });
       }
       location.hash = '#/hoy';
     });
@@ -256,7 +307,7 @@ const Hoy = (() => {
   // ---------- Progreso ----------
   const ETIQUETA_TIPO = {
     peso: 'Peso', pasos: 'Pasos', animo: 'Ánimo',
-    sueno: 'Sueño', marihuana: 'Marihuana', gasto: 'Gasto', comida: 'Comida'
+    sueno: 'Sueño', marihuana: 'Marihuana', gasto: 'Gasto', comida: 'Comida', diario: 'Diario'
   };
   const MARIHUANA_TEXTO = { 0: 'Nada', 0.5: 'Medio', 1: 'Entero' };
 
@@ -297,6 +348,12 @@ const Hoy = (() => {
       }
       if (r.tipo === 'comida' && r.valor && typeof r.valor === 'object') {
         valor = r.valor.nombre + ' · ' + r.valor.kcal + ' kcal · ' + r.valor.prot + 'g';
+      }
+      if (r.tipo === 'marihuana' && r.valor && typeof r.valor === 'object') {
+        valor = (MARIHUANA_TEXTO[r.valor.cantidad] || r.valor.cantidad) + ' · ' + r.valor.como;
+      }
+      if (r.tipo === 'diario' && r.valor && typeof r.valor === 'object') {
+        valor = '"' + r.valor.respuesta + '"';
       }
       html += '<div class="fila-dato"><span>' + fecha + ' · ' + (ETIQUETA_TIPO[r.tipo] || r.tipo) + '</span>' +
         '<span class="valor">' + esc(valor) + '</span></div>';

@@ -23,7 +23,7 @@
   document.getElementById('hoy-saludo').textContent = saludo();
 
   // ---------- Navegación ----------
-  const RUTAS = ['hoy', 'biblioteca', 'tuyo', 'progreso', 'ajustes', 'cierre', 'gym', 'rutina', 'comida', 'compras', 'movilidad', 'player'];
+  const RUTAS = ['hoy', 'biblioteca', 'tuyo', 'progreso', 'ajustes', 'cierre', 'gym', 'rutina', 'comida', 'compras', 'movilidad', 'player', 'respirar', 'aprender', 'foco'];
 
   function navegar() {
     const ruta = location.hash.replace('#/', '') || 'hoy';
@@ -46,8 +46,13 @@
     if (destino === 'ajustes') Registro.renderConfig();
     if (destino === 'movilidad') Movilidad.renderLista();
     if (destino === 'player') Movilidad.renderPlayer();
+    if (destino === 'respirar') Respiracion.renderLista();
+    if (destino === 'aprender') Aprender.render();
+    if (destino === 'foco') Foco.render();
     if (destino !== 'gym') Gym.pararTimer();
     if (destino !== 'player') Movilidad.pararTimer();
+    if (destino !== 'respirar') Respiracion.pararTimer();
+    if (destino !== 'foco') Foco.pararTimer();
     window.scrollTo(0, 0);
   }
 

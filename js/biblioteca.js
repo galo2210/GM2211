@@ -29,6 +29,22 @@ const Biblioteca = (() => {
       '<svg class="flecha" width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1L6 6L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>' +
       '</button>';
 
+    // Respiración y meditación
+    html += '<div class="bloque-cabecera" style="margin-top:16px;"><h3>Respiración · Meditación</h3></div>' +
+      '<button class="pieza" data-ir="respirar" style="width:100%; text-align:left; font-family:inherit;">' +
+      '<div class="cuerpo"><p class="titulo">Respirar</p>' +
+      '<p class="meta">' + RESPIRACIONES.length + ' técnicas con timer + ' + MEDITACIONES.length + ' meditaciones guiadas</p></div>' +
+      '<svg class="flecha" width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1L6 6L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>' +
+      '</button>';
+
+    // Aprender
+    html += '<div class="bloque-cabecera" style="margin-top:16px;"><h3>Aprender</h3></div>' +
+      '<button class="pieza" data-ir="aprender" style="width:100%; text-align:left; font-family:inherit;">' +
+      '<div class="cuerpo"><p class="titulo">Piezas de Aprender</p>' +
+      '<p class="meta">' + APRENDER_PIEZAS.length + ' piezas · una por día · el archivo siempre consultable</p></div>' +
+      '<svg class="flecha" width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1L6 6L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>' +
+      '</button>';
+
     // Gym
     html += '<div class="bloque-cabecera" style="margin-top:16px;"><h3>Gym · técnica</h3></div>';
     Object.keys(GYM_SESIONES).forEach((ref) => {
@@ -52,7 +68,7 @@ const Biblioteca = (() => {
         '</button>';
     });
 
-    html += '<div class="tarjeta vacio" style="margin-top:16px;"><p>Respiración/meditación y las piezas de Aprender llegan en la próxima fase. El buscador único se prende cuando esté todo el contenido.</p></div>';
+    html += '<div class="tarjeta vacio" style="margin-top:16px;"><p>El buscador único llega en la última fase, con todo el contenido adentro.</p></div>';
 
     cont.innerHTML = html;
 
