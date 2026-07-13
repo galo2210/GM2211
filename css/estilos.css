@@ -529,6 +529,43 @@ input, select, textarea { font-size: 16px; font-family: var(--sans); }
 }
 .dia-chip.activo { opacity: 1; border-color: var(--acento); background: var(--acento-tenue); color: var(--acento); font-weight: 700; }
 
+/* ---------- Compras ---------- */
+.precio-input {
+  flex: none;
+  width: 74px;
+  min-height: 40px;
+  padding: 0 8px;
+  border-radius: 8px;
+  border: 1px solid var(--borde);
+  background: var(--fondo);
+  color: var(--texto-1);
+  font-family: var(--mono);
+  font-size: 16px;
+  text-align: right;
+}
+
+/* ---------- Buscador de alimentos ---------- */
+.comida-resultados { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+.alimento {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--borde);
+  background: var(--fondo);
+  color: var(--texto-1);
+  font-family: var(--sans);
+  font-size: 14.5px;
+  cursor: pointer;
+  text-align: left;
+}
+.alimento .nombre { font-weight: 600; }
+.alimento .datos { font-family: var(--mono); font-size: 11.5px; color: var(--texto-3); white-space: nowrap; }
+.alimento:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+
 /* ---------- Recetas ---------- */
 .lista-receta {
   margin: 0;

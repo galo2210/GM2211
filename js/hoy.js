@@ -250,18 +250,34 @@ const Hoy = (() => {
   // ---------- Progreso ----------
   const ETIQUETA_TIPO = {
     peso: 'Peso', pasos: 'Pasos', animo: 'Ánimo',
-    sueno: 'Sueño', marihuana: 'Marihuana', gasto: 'Gasto'
+    sueno: 'Sueño', marihuana: 'Marihuana', gasto: 'Gasto', comida: 'Comida'
   };
   const MARIHUANA_TEXTO = { 0: 'Nada', 0.5: 'Medio', 1: 'Entero' };
 
   function renderProgreso() {
     const cont = document.getElementById('progreso-lista');
-    const registros = Store.leer('registros', []).slice(-15).reverse();
+    const todos = Store.leer('registros', []);
+    const registros = todos.slice(-15).reverse();
     if (registros.length === 0) {
-      cont.innerHTML = '<div class="tarjeta vacio"><p>Todavía no registraste nada. Con el (+) cargás peso, pasos, ánimo, sueño y más en un toque.</p></div>';
+      cont.innerHTML = '<div class="tarjeta vacio"><p>Todavía no registraste nada. Con el (+) cargás comida, peso, pasos, ánimo, sueño y más en un toque.</p></div>';
       return;
     }
-    let html = '<div class="tarjeta">';
+
+    // Resumen de comida de HOY (meta: ~2.000-2.100 kcal · 140g+ proteína)
+    const iso = Motor.fechaISO();
+    // Ojo: r.fecha es UTC; se compara la fecha LOCAL (a la noche UTC ya es "mañana").
+    const comidasHoy = todos.filter((r) => r.tipo === 'comida' && Motor.fechaISO(new Date(r.fecha)) === iso);
+    let html = '';
+    if (comidasHoy.length > 0) {
+      const kcal = comidasHoy.reduce((s, r) => s + (r.valor.kcal || 0), 0);
+      const prot = comidasHoy.reduce((s, r) => s + (r.valor.prot || 0), 0);
+      html += '<div class="tarjeta"><h2>Comida de hoy</h2>' +
+        '<div class="fila-dato"><span>Calorías</span><span class="valor">' + kcal + ' / ~2.050 kcal</span></div>' +
+        '<div class="fila-dato"><span>Proteína</span><span class="valor">' + prot + ' / 140g+</span></div>' +
+        '</div>';
+    }
+
+    html += '<div class="tarjeta">';
     registros.forEach((r) => {
       const f = new Date(r.fecha);
       const fecha = String(f.getDate()).padStart(2, '0') + '/' + String(f.getMonth() + 1).padStart(2, '0');
@@ -272,6 +288,9 @@ const Hoy = (() => {
       if (r.tipo === 'marihuana') valor = MARIHUANA_TEXTO[r.valor] !== undefined ? MARIHUANA_TEXTO[r.valor] : valor;
       if (r.tipo === 'gasto' && r.valor && typeof r.valor === 'object') {
         valor = '$' + Number(r.valor.monto).toLocaleString('es-AR') + ' · ' + r.valor.categoria;
+      }
+      if (r.tipo === 'comida' && r.valor && typeof r.valor === 'object') {
+        valor = r.valor.nombre + ' · ' + r.valor.kcal + ' kcal · ' + r.valor.prot + 'g';
       }
       html += '<div class="fila-dato"><span>' + fecha + ' · ' + (ETIQUETA_TIPO[r.tipo] || r.tipo) + '</span>' +
         '<span class="valor">' + esc(valor) + '</span></div>';

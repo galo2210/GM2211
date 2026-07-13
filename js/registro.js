@@ -4,6 +4,7 @@
 const Registro = (() => {
 
   const TIPOS = [
+    { tipo: 'comida', nombre: 'Comida' },
     { tipo: 'peso', nombre: 'Peso' },
     { tipo: 'pasos', nombre: 'Pasos' },
     { tipo: 'animo', nombre: 'Ánimo' },
@@ -79,6 +80,11 @@ const Registro = (() => {
     const cont = document.getElementById('hoja-cuerpo');
     let html = '<button class="btn-volver" id="btn-volver-menu">&#8249; Volver</button>';
 
+    if (tipo === 'comida') {
+      html += '<p class="hoja-ayuda">Buscá y tocá. Los platos de tu plan ya están cargados con sus macros.</p>' +
+        '<div class="registro-fila"><input type="search" id="comida-buscar" placeholder="Buscar (ej: milanesa)"></div>' +
+        '<div id="comida-resultados" class="comida-resultados"></div>';
+    }
     if (tipo === 'peso') {
       html += '<p class="hoja-ayuda">En ayunas, después del baño: mismo momento, dato comparable.</p>' +
         '<div class="registro-fila"><input type="text" inputmode="decimal" id="reg-valor" placeholder="68,5 (kg)">' +
@@ -130,6 +136,49 @@ const Registro = (() => {
 
     cont.innerHTML = html;
     document.getElementById('btn-volver-menu').addEventListener('click', renderMenu);
+
+    // Buscador de alimentos
+    if (tipo === 'comida') {
+      const buscar = document.getElementById('comida-buscar');
+      const resultados = document.getElementById('comida-resultados');
+
+      const pintar = (filtro) => {
+        const f = filtro.trim().toLowerCase();
+        const lista = f
+          ? ALIMENTOS.filter((a) => a.nombre.toLowerCase().includes(f))
+          : ALIMENTOS.filter((a) => a.cat === 'Platos');
+        resultados.innerHTML = lista.slice(0, 8).map((a) =>
+          '<button class="alimento" data-alimento="' + a.id + '">' +
+          '<span class="nombre">' + esc(a.nombre) + '</span>' +
+          '<span class="datos">' + esc(a.porcion) + ' · ' + a.kcal + ' kcal · ' + a.prot + 'g</span>' +
+          '</button>').join('') || '<p class="hoja-ayuda">Nada con ese nombre. Probá otra palabra.</p>';
+
+        resultados.querySelectorAll('[data-alimento]').forEach((b) => {
+          b.addEventListener('click', () => {
+            const a = ALIMENTOS.find((x) => x.id === b.dataset.alimento);
+            resultados.innerHTML = '<p class="hoja-ayuda" style="margin-top:10px;"><strong>' + esc(a.nombre) + '</strong> · ¿cuánto?</p>' +
+              '<div class="animo-fila">' +
+              [0.5, 1, 1.5, 2].map((p) => '<button class="btn-animo" data-porciones="' + p + '">' + String(p).replace('.', ',') + '</button>').join('') +
+              '</div>';
+            resultados.querySelectorAll('[data-porciones]').forEach((bp) => {
+              bp.addEventListener('click', () => {
+                const p = Number(bp.dataset.porciones);
+                guardarRegistro('comida', {
+                  nombre: a.nombre,
+                  porciones: p,
+                  kcal: Math.round(a.kcal * p),
+                  prot: Math.round(a.prot * p)
+                });
+                cerrarHoja();
+              });
+            });
+          });
+        });
+      };
+
+      pintar('');
+      buscar.addEventListener('input', () => pintar(buscar.value));
+    }
 
     // Botones de valor directo (ánimo, sueño rápido, marihuana)
     cont.querySelectorAll('.btn-animo[data-valor]').forEach((b) => {
