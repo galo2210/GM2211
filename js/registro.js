@@ -33,16 +33,45 @@ const Registro = (() => {
     renderMenu();
   }
 
+  function tiposActivos() {
+    const config = Store.leer('registro-config', {});
+    const activos = TIPOS.filter((t) => config[t.tipo] !== false);
+    return activos.length > 0 ? activos : TIPOS;
+  }
+
   function renderMenu() {
     const cont = document.getElementById('hoja-cuerpo');
     let html = '<div class="registro-grilla">';
-    TIPOS.forEach((t) => {
+    tiposActivos().forEach((t) => {
       html += '<button class="registro-opcion" data-tipo="' + t.tipo + '">' + esc(t.nombre) + '</button>';
     });
-    html += '</div>';
+    html += '</div>' +
+      '<p class="hoja-ayuda" style="margin:12px 0 0;">Qué aparece acá se elige en Ajustes.</p>';
     cont.innerHTML = html;
     cont.querySelectorAll('[data-tipo]').forEach((b) => {
       b.addEventListener('click', () => renderForm(b.dataset.tipo));
+    });
+  }
+
+  // Toggles en Ajustes: qué tipos ofrece el (+).
+  function renderConfig() {
+    const cont = document.getElementById('ajustes-registro-config');
+    const config = Store.leer('registro-config', {});
+    let html = '';
+    TIPOS.forEach((t) => {
+      const activo = config[t.tipo] !== false;
+      html += '<div class="fila-dato"><span>' + esc(t.nombre) + '</span>' +
+        '<button class="interruptor' + (activo ? ' prendido' : '') + '" data-config-tipo="' + t.tipo + '" role="switch" aria-checked="' + activo + '" aria-label="Mostrar ' + esc(t.nombre) + ' en el registro rápido"><span></span></button></div>';
+    });
+    cont.innerHTML = html;
+    cont.querySelectorAll('[data-config-tipo]').forEach((b) => {
+      b.addEventListener('click', () => {
+        const config2 = Store.leer('registro-config', {});
+        const activo = config2[b.dataset.configTipo] !== false;
+        if (activo) config2[b.dataset.configTipo] = false; else delete config2[b.dataset.configTipo];
+        Store.guardar('registro-config', config2);
+        renderConfig();
+      });
     });
   }
 
@@ -170,5 +199,5 @@ const Registro = (() => {
     renderMenu();
   }
 
-  return { init, guardarRegistro };
+  return { init, guardarRegistro, renderConfig };
 })();
