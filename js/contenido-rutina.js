@@ -87,6 +87,11 @@ const RUTINA_BASE = [
     titulo: 'Aprender · 15 min', meta: 'Una pieza corta + lo tuyo',
     porque: 'Quince minutos por día es un libro por mes. Sin apuro.'
   },
+  {
+    id: 'foco-negocio', bloque: 'dia', dias: [0, 6],
+    titulo: 'Bloque Negocio · 1h', meta: 'El proyecto propio · 2 bloques por semana',
+    porque: 'El negocio se construye en estas horas, no en las ganas. Una hora de verdad alcanza.'
+  },
 
   // ---------- NOCHE ----------
   {
