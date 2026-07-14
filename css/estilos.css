@@ -566,6 +566,22 @@ input, select, textarea { font-size: 16px; font-family: var(--sans); }
 .alimento .datos { font-family: var(--mono); font-size: 11.5px; color: var(--texto-3); white-space: nowrap; }
 .alimento:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
 
+/* ---------- Barra de progreso (Fondo Brasil) ---------- */
+.barra {
+  height: 10px;
+  border-radius: 999px;
+  background: var(--superficie-2);
+  border: 1px solid var(--borde);
+  overflow: hidden;
+  margin: 12px 0 8px;
+}
+.barra div {
+  height: 100%;
+  background: var(--acento);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
 /* ---------- Player guiado ---------- */
 .player-card { text-align: center; padding: 24px 18px; }
 .player-rutina {

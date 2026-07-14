@@ -307,7 +307,8 @@ const Hoy = (() => {
   // ---------- Progreso ----------
   const ETIQUETA_TIPO = {
     peso: 'Peso', pasos: 'Pasos', animo: 'Ánimo',
-    sueno: 'Sueño', marihuana: 'Marihuana', gasto: 'Gasto', comida: 'Comida', diario: 'Diario'
+    sueno: 'Sueño', marihuana: 'Marihuana', gasto: 'Gasto', comida: 'Comida', diario: 'Diario',
+    ingreso: 'Ingreso'
   };
   const MARIHUANA_TEXTO = { 0: 'Nada', 0.5: 'Medio', 1: 'Entero' };
 
@@ -354,6 +355,9 @@ const Hoy = (() => {
       }
       if (r.tipo === 'diario' && r.valor && typeof r.valor === 'object') {
         valor = '"' + r.valor.respuesta + '"';
+      }
+      if (r.tipo === 'ingreso' && r.valor && typeof r.valor === 'object') {
+        valor = '$' + Number(r.valor.monto).toLocaleString('es-AR') + ' · ' + r.valor.origen;
       }
       html += '<div class="fila-dato"><span>' + fecha + ' · ' + (ETIQUETA_TIPO[r.tipo] || r.tipo) + '</span>' +
         '<span class="valor">' + esc(valor) + '</span></div>';

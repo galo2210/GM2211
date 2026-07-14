@@ -15,6 +15,11 @@ const Biblioteca = (() => {
 
     // Herramientas
     html += '<div class="bloque-cabecera"><h3>Herramientas</h3></div>' +
+      '<button class="pieza" data-ir="plata" style="width:100%; text-align:left; font-family:inherit;">' +
+      '<div class="cuerpo"><p class="titulo">Plata</p>' +
+      '<p class="meta">Fondo Brasil · gastos del mes · fijos · ingresos</p></div>' +
+      '<svg class="flecha" width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1L6 6L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>' +
+      '</button>' +
       '<button class="pieza" data-ir="compras" style="width:100%; text-align:left; font-family:inherit;">' +
       '<div class="cuerpo"><p class="titulo">Compras</p>' +
       '<p class="meta">Listas del súper · presupuesto · precios</p></div>' +
