@@ -209,5 +209,10 @@ const Gym = (() => {
     }
   }
 
-  return { render, pararTimer };
+  // Para el buscador de Biblioteca: abre una sesión puntual.
+  function abrir(ref) {
+    if (GYM_SESIONES[ref]) sesionElegida = ref;
+  }
+
+  return { render, pararTimer, abrir };
 })();

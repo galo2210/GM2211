@@ -2,6 +2,16 @@
 // Objetivo: recomposición. ~2.000-2.100 kcal · 140g+ proteína. El problema es comer POCO:
 // densidad calórica sabrosa SÍ (crema, manteca, oliva, palta, miel). Nada acá toca el store.
 
+// Suplementos: los que tiene, con timing (SISTEMA.md §4.3). Consultables y buscables.
+const SUPLEMENTOS = [
+  { nombre: 'Creatina monohidrato', timing: '5g TODOS los días, cualquier hora', porque: 'La más importante. Constancia > timing: funciona por saturación.' },
+  { nombre: 'Whey', timing: 'Post-gym o para completar proteína', porque: 'Proteína rápida y barata por gramo. El desayuno y el post-gym viven de ella.' },
+  { nombre: 'Fish oil 2000mg', timing: '2 cápsulas con comida grasa (cena)', porque: 'Antiinflamatorio, cabeza y piel. Con grasa se absorbe mejor.' },
+  { nombre: 'Magnesio B6', timing: '1 antes de dormir', porque: 'Tensión muscular, dolores de cabeza y calidad de sueño. Tu combo nocturno.' },
+  { nombre: 'Esclerovitan', timing: '1 a la mañana con el café', porque: 'Antioxidante de base. Va con el desayuno para no pensarlo.' },
+  { nombre: 'Redoxon vit C', timing: 'Reserva: días de mucho desgaste o resfrío inminente', porque: 'No es diario: es el refuerzo puntual.' }
+];
+
 const COMIDAS = {
 
   'desayuno': {
