@@ -36,7 +36,7 @@
     });
     if (destino === 'hoy') Hoy.renderHoy();
     if (destino === 'cierre') Hoy.renderCierre();
-    if (destino === 'progreso') Hoy.renderProgreso();
+    if (destino === 'progreso') Progreso.render();
     if (destino === 'tuyo') Tuyo.render();
     if (destino === 'gym') Gym.render();
     if (destino === 'rutina') RutinaEditor.render();
