@@ -58,10 +58,45 @@ const Progreso = (() => {
   }
 
   // ---------- Render ----------
+  function stat(pilar, icono, label, valor, sub) {
+    return '<div class="stat pc-' + pilar + '">' +
+      '<p class="s-label">' + Iconos.get(icono, 13) + label + '</p>' +
+      '<p class="s-valor">' + valor + '</p>' +
+      (sub ? '<p class="s-sub">' + sub + '</p>' : '') +
+      '</div>';
+  }
+
   function render() {
     const cont = document.getElementById('progreso-lista');
     const registros = Store.leer('registros', []);
     let html = '';
+
+    // ---- Tablero de stats: el estado de un vistazo ----
+    const pesosT = porTipo('peso');
+    const pasosT = porTipo('pasos');
+    const animosT = porTipo('animo');
+    const suenosT = porTipo('sueno');
+    const isoHoy = Motor.fechaISO();
+    const pasosHoy = pasosT.filter((r) => diaLocal(r.fecha) === isoHoy).map((r) => r.valor);
+    const prom = (arr) => arr.length ? (arr.reduce((s, v) => s + v, 0) / arr.length) : null;
+    const hace7 = Date.now() - 7 * 86400000;
+    const animo7 = prom(animosT.filter((r) => new Date(r.fecha) >= hace7).map((r) => r.valor));
+    const sueno7 = prom(suenosT.filter((r) => new Date(r.fecha) >= hace7).map((r) => r.valor));
+
+    html += '<div class="stats">' +
+      stat('cuerpo', 'progreso', 'Peso',
+        pesosT.length ? String(pesosT[pesosT.length - 1].valor).replace('.', ',') + '<small> kg</small>' : '—',
+        pesosT.length ? 'últ. registro' : 'cargalo con el (+)') +
+      stat('cuerpo', 'pasos', 'Pasos hoy',
+        pasosHoy.length ? Math.max(...pasosHoy).toLocaleString('es-AR') : '—',
+        pasosHoy.length ? '' : 'de la app Salud') +
+      stat('cabeza', 'cabeza', 'Ánimo · 7 días',
+        animo7 !== null ? animo7.toFixed(1) + '<small> / 5</small>' : '—',
+        animo7 !== null ? '' : 'lo pregunta el cierre') +
+      stat('cabeza', 'sueno', 'Sueño · 7 días',
+        sueno7 !== null ? sueno7.toFixed(1) + '<small> hs</small>' : '—',
+        sueno7 !== null ? '' : 'un toque a la mañana') +
+      '</div>';
 
     // Comida de hoy
     const iso = Motor.fechaISO();

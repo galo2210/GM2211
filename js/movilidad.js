@@ -34,15 +34,29 @@ const Movilidad = (() => {
       ? RUTINAS_MOV.filter((r) => r.problemas.includes(filtroProblema))
       : RUTINAS_MOV;
 
+    const ICONO_CAT = {
+      'Mañana': 'energia', 'Pausas oficina': 'reloj', 'Pre-gym': 'gym',
+      'Noche': 'sueno', 'Cara': 'cuerpo', 'Casa': 'tuyo'
+    };
+    const SUB_CAT = {
+      'Mañana': 'Para arrancar el cuerpo', 'Pausas oficina': 'Discretas, en la silla',
+      'Pre-gym': 'Antes de entrenar', 'Noche': 'Para soltar el día',
+      'Cara': 'Solo lo comprobado', 'Casa': 'Días sin gym'
+    };
+
     CATEGORIAS.forEach((cat) => {
       const rutinas = visibles.filter((r) => r.categoria === cat);
       if (rutinas.length === 0) return;
-      html += '<div class="bloque-cabecera" style="margin-top:16px;"><h3>' + cat + '</h3></div>';
+      html += '<div class="pilar-cabecera pc-cuerpo" style="margin-top:20px;">' +
+        '<span class="ic">' + Iconos.get(ICONO_CAT[cat] || 'movilidad', 18) + '</span>' +
+        '<div><h3>' + cat + '</h3><p class="sub">' + (SUB_CAT[cat] || '') + '</p></div></div>';
       rutinas.forEach((r) => {
-        html += '<button class="pieza" data-rutina="' + r.id + '" style="width:100%; text-align:left; font-family:inherit;">' +
-          '<div class="cuerpo"><p class="titulo">' + esc(r.nombre) + '</p>' +
-          '<p class="meta">' + esc(r.dur) + ' · ' + r.pasos.length + ' pasos guiados</p></div>' +
-          '<svg class="flecha" width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1L6 6L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>' +
+        html += '<button class="rutina-card pc-cuerpo" data-rutina="' + r.id + '" style="margin-bottom:8px;">' +
+          '<span class="ic">' + Iconos.get('movilidad', 20) + '</span>' +
+          '<span class="cuerpo"><span class="titulo" style="display:block;">' + esc(r.nombre) + '</span>' +
+          '<span class="meta" style="display:block;">' + r.pasos.length + ' pasos guiados' +
+          (r.problemas.length ? ' · ' + esc(r.problemas.join(', ')) : '') + '</span></span>' +
+          '<span class="dur">' + esc(r.dur) + '</span>' +
           '</button>';
       });
     });
@@ -129,8 +143,12 @@ const Movilidad = (() => {
     const m = Math.floor(restante / 60);
     const s = String(restante % 60).padStart(2, '0');
 
-    let html = '<div class="tarjeta player-card">' +
-      '<p class="player-rutina">' + esc(r.nombre) + ' · paso ' + (pasoIdx + 1) + '/' + r.pasos.length + '</p>' +
+    const dots = r.pasos.map((_, i) =>
+      '<span class="' + (i < pasoIdx ? 'hecho' : (i === pasoIdx ? 'actual' : '')) + '"></span>').join('');
+
+    let html = '<div class="tarjeta player-card pc-cuerpo">' +
+      '<p class="player-rutina">' + esc(r.nombre) + '</p>' +
+      '<div class="pasos-dots">' + dots + '</div>' +
       '<h2 id="player-paso-nombre" data-idx="' + pasoIdx + '">' + esc(paso.nombre) + '</h2>' +
       '<p class="player-tiempo" id="player-tiempo">' + m + ':' + s + '</p>' +
       '<p class="player-instruccion">' + esc(paso.instruccion) + '</p>' +
