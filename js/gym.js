@@ -1,11 +1,11 @@
-// NORTE · pantalla GYM — sesión del día con técnica en 3 niveles,
-// último peso por ejercicio, timer de descanso, variantes y versión mínima.
+// NORTE · pantalla GYM — sesión con tracker de series por toque (el descanso arranca solo),
+// técnica en secciones estructuradas, último peso, versión mínima y variantes.
 
 const Gym = (() => {
 
   let sesionElegida = null;   // ref de GYM_SESIONES que se está viendo
   let modoMinimo = false;
-  let timerActivo = null;     // { intervalo, ejercicioId }
+  let timerActivo = null;     // { intervalo, ejercicioId, total, restante }
 
   function esc(t) {
     const d = document.createElement('div');
@@ -33,6 +33,25 @@ const Gym = (() => {
     Store.guardar('gym-historial', historial);
   }
 
+  // Series completadas hoy por ejercicio: { iso: { ejId: n } }
+  function seriesDeHoy() {
+    const todas = Store.leer('gym-series', {});
+    return todas[Motor.fechaISO()] || {};
+  }
+
+  function guardarSeries(ejId, n) {
+    const todas = Store.leer('gym-series', {});
+    const iso = Motor.fechaISO();
+    todas[iso] = todas[iso] || {};
+    todas[iso][ejId] = n;
+    Store.guardar('gym-series', todas);
+  }
+
+  function totalSeries(ej) {
+    const n = parseInt(ej.series, 10);
+    return n >= 1 && n <= 8 ? n : 3;
+  }
+
   function hechosDeHoy() {
     const todos = Store.leer('gym-hechos', {});
     return todos[Motor.fechaISO()] || {};
@@ -53,6 +72,36 @@ const Gym = (() => {
     }
   }
 
+  // Descanso automático como barra que se vacía.
+  function arrancarDescanso(card, segundos) {
+    pararTimer();
+    const zona = card.querySelector('[data-timer-zona]');
+    zona.hidden = false;
+    zona.innerHTML = '<div class="timer-barra"><div style="width:100%;"></div></div>' +
+      '<div class="timer-texto"><span>Descanso</span><span data-t>' + fmt(segundos) + '</span></div>';
+    const barra = zona.querySelector('.timer-barra div');
+    const texto = zona.querySelector('[data-t]');
+    let restante = segundos;
+    requestAnimationFrame(() => { barra.style.width = ((restante - 1) / segundos * 100) + '%'; });
+    timerActivo = {
+      ejercicioId: card.dataset.ej,
+      intervalo: setInterval(() => {
+        restante -= 1;
+        if (restante <= 0) {
+          pararTimer();
+          zona.innerHTML = '<div class="timer-texto"><span style="color:var(--verde); font-weight:700;">Listo. Siguiente serie.</span></div>';
+          return;
+        }
+        texto.textContent = fmt(restante);
+        barra.style.width = ((restante - 1) / segundos * 100) + '%';
+      }, 1000)
+    };
+  }
+
+  function fmt(s) {
+    return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+  }
+
   function render() {
     pararTimer();
     const cont = document.getElementById('gym-contenido');
@@ -60,24 +109,29 @@ const Gym = (() => {
     if (!sesionElegida) sesionElegida = hoyRef || 'gym-empuje';
     const sesion = GYM_SESIONES[sesionElegida];
     const hechos = hechosDeHoy();
+    const series = seriesDeHoy();
     const esLaDeHoy = sesionElegida === hoyRef;
+    const lista = modoMinimo ? sesion.ejercicios.slice(0, GYM_MINIMA_CANTIDAD) : sesion.ejercicios;
+    const nHechos = lista.filter((ej) => hechos[ej.id]).length;
 
     let html = '';
 
     // Selector de sesión
     html += '<div class="chips">';
     Object.keys(GYM_SESIONES).forEach((ref) => {
-      const s = GYM_SESIONES[ref];
       html += '<button class="chip' + (ref === sesionElegida ? ' activo' : '') + '" data-sesion="' + ref + '">' +
-        esc(s.nombre) + '</button>';
+        esc(GYM_SESIONES[ref].nombre) + '</button>';
     });
     html += '</div>';
 
-    if (!esLaDeHoy) {
-      html += '<div class="tarjeta vacio"><p>' + (hoyRef
-        ? 'Hoy toca ' + esc(GYM_SESIONES[hoyRef].nombre) + '. Esta la estás mirando de consulta.'
-        : 'Hoy no hay gym en tu rutina. Esto es consulta, o hacela igual si pinta.') + '</p></div>';
-    }
+    // Cabecera de sesión con progreso
+    html += '<div class="sesion-head">' +
+      '<div class="sh-top"><span class="badge">' + Iconos.get('gym', 24) + '</span>' +
+      '<div><h2>' + esc(sesion.nombre) + '</h2>' +
+      '<p class="sh-sub">' + esc(sesion.dia) + ' · ' + lista.length + ' ejercicios · ' + esc(modoMinimo ? sesion.cintaMinima : sesion.cinta) + '</p></div></div>' +
+      '<div class="barra"><div style="width:' + Math.round(nHechos / lista.length * 100) + '%;"></div></div>' +
+      '<span class="sh-prog">' + nHechos + ' de ' + lista.length + ' completados' + (esLaDeHoy ? '' : ' · modo consulta, hoy no toca esta') + '</span>' +
+      '</div>';
 
     // Versión mínima
     html += '<button class="cierre-card' + (modoMinimo ? ' activo' : '') + '" id="btn-minima"><div class="cuerpo">' +
@@ -86,38 +140,53 @@ const Gym = (() => {
       '</div></button>';
 
     // Ejercicios
-    const lista = modoMinimo ? sesion.ejercicios.slice(0, GYM_MINIMA_CANTIDAD) : sesion.ejercicios;
     lista.forEach((ej, i) => {
       const m = marca(ej.id);
       const hecho = !!hechos[ej.id];
+      const nSets = totalSeries(ej);
+      const setsHechos = Math.min(series[ej.id] || 0, nSets);
+
       html += '<div class="ejercicio' + (hecho ? ' hecho' : '') + '" data-ej="' + ej.id + '">' +
         '<div class="ej-cabecera" data-accion="hecho">' +
-        '<span class="estado">' + (hecho ? '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6.5L4.5 9L10 3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' : (i + 1)) + '</span>' +
-        '<div class="cuerpo"><p class="titulo">' + esc(ej.nombre) + (ej.opcional ? ' <span class="tag">Opcional</span>' : '') + '</p>' +
-        '<p class="meta">' + esc(ej.series) + ' · ' + esc(ej.nivel1) + (m ? ' · <strong>Últ: ' + esc(String(m.peso)) + 'kg×' + esc(String(m.reps)) + '</strong>' : '') + '</p></div>' +
-        '</div>' +
-        '<div class="ej-acciones">' +
+        '<span class="estado">' + (hecho ? Iconos.get('check', 15, 2.4) : (i + 1)) + '</span>' +
+        '<div class="cuerpo"><p class="titulo">' + esc(ej.nombre) + (ej.opcional ? ' <span class="tag pc-cuerpo">Opcional</span>' : '') + '</p>' +
+        '<p class="meta">' + esc(ej.series) + ' · ' + esc(ej.nivel1) +
+        (m ? ' · <strong>Últ: ' + esc(String(m.peso)) + 'kg×' + esc(String(m.reps)) + '</strong>' : '') + '</p></div>' +
+        '</div>';
+
+      // Tracker de series: un toque por serie hecha, el descanso arranca solo
+      html += '<div class="series-fila"><span class="series-label">Series</span><div class="serie-dots">';
+      for (let s = 0; s < nSets; s++) {
+        html += '<button class="serie-dot' + (s < setsHechos ? ' llena' : '') + '" data-serie="' + s + '" aria-label="Serie ' + (s + 1) + '">' +
+          (s < setsHechos ? Iconos.get('check', 13, 2.6) : (s + 1)) + '</button>';
+      }
+      html += '</div></div>';
+      html += '<div class="timer-zona" data-timer-zona hidden></div>';
+
+      html += '<div class="ej-acciones">' +
         '<button class="btn-mini" data-accion="tecnica">Técnica</button>' +
         '<button class="btn-mini" data-accion="registrar">Anotar peso</button>' +
-        '<button class="btn-mini" data-accion="descanso">Descanso ' + (ej.descanso >= 120 ? '2:00' : '1:15') + '</button>' +
-        '</div>' +
-        '<div class="ej-panel" data-panel="tecnica" hidden>' +
-        '<p><strong>Preparación.</strong> ' + esc(ej.nivel2.prep) + '</p>' +
-        '<p><strong>Ejecución.</strong> ' + esc(ej.nivel2.ejec) + '</p>' +
-        '<p><strong>Errores que anulan.</strong> ' + esc(ej.nivel2.errores) + '</p>' +
-        '<p><strong>Qué sentir.</strong> ' + esc(ej.nivel2.sentir) + '</p>' +
-        '<p><strong>Progresar.</strong> ' + esc(ej.nivel2.progresar) + '</p>' +
-        '<p class="porque-ej"><strong>Por qué está en tu plan.</strong> ' + esc(ej.nivel3) + '</p>' +
-        '<p class="variantes-ej"><strong>Si está ocupada:</strong> ' + ej.variantes.map(esc).join(' · ') + '</p>' +
-        '</div>' +
-        '<div class="ej-panel" data-panel="registrar" hidden>' +
+        '</div>';
+
+      // Técnica en secciones estructuradas
+      html += '<div class="ej-panel" data-panel="tecnica" hidden>' +
+        tecSeccion('rutina', 'Preparación', ej.nivel2.prep) +
+        tecSeccion('energia', 'Ejecución', ej.nivel2.ejec) +
+        tecSeccion('cerrar', 'Errores que anulan', ej.nivel2.errores) +
+        tecSeccion('cuerpo', 'Qué sentir', ej.nivel2.sentir) +
+        tecSeccion('progreso', 'Cómo progresar', ej.nivel2.progresar) +
+        tecSeccion('aprender', 'Por qué está en tu plan', ej.nivel3, true) +
+        tecSeccion('flecha', 'Si está ocupada', ej.variantes.join(' · '), true) +
+        '</div>';
+
+      html += '<div class="ej-panel" data-panel="registrar" hidden>' +
         '<div class="registro-fila">' +
         '<input type="text" inputmode="decimal" data-campo="peso" placeholder="kg" aria-label="Peso">' +
         '<input type="text" inputmode="numeric" data-campo="reps" placeholder="reps" aria-label="Repeticiones">' +
         '<button class="btn btn-secundario" data-accion="guardar-marca">Guardar</button>' +
-        '</div></div>' +
-        '<p class="ej-timer" data-timer hidden></p>' +
-        '</div>';
+        '</div></div>';
+
+      html += '</div>';
     });
 
     // Bonus y cinta
@@ -125,18 +194,22 @@ const Gym = (() => {
       html += '<div class="tarjeta vacio"><p><strong>' + esc(sesion.bonus.nombre) + '</strong> · ' +
         esc(sesion.bonus.series) + '<br><span class="mono">' + esc(sesion.bonus.nivel1) + '</span></p></div>';
     }
-    html += '<div class="tarjeta"><p><strong>Para cerrar:</strong> ' +
-      esc(modoMinimo ? sesion.cintaMinima : sesion.cinta) + '</p></div>';
 
     if (esLaDeHoy) {
       html += '<button class="btn btn-primario" id="btn-terminar-gym" style="width:100%;">Terminar sesión</button>';
     }
 
     cont.innerHTML = html;
-    conectar(cont, sesion, esLaDeHoy);
+    conectar(cont, sesion, esLaDeHoy, lista);
   }
 
-  function conectar(cont, sesion, esLaDeHoy) {
+  function tecSeccion(icono, titulo, texto, suave) {
+    return '<div class="tec-seccion' + (suave ? ' suave' : '') + '">' +
+      '<span class="tec-ic">' + Iconos.get(icono, 15) + '</span>' +
+      '<div class="tec-txt"><h4>' + titulo + '</h4><p>' + (function(){ const d = document.createElement('div'); d.textContent = texto; return d.innerHTML; })() + '</p></div></div>';
+  }
+
+  function conectar(cont, sesion, esLaDeHoy, lista) {
     cont.querySelectorAll('[data-sesion]').forEach((b) => {
       b.addEventListener('click', () => { sesionElegida = b.dataset.sesion; render(); });
     });
@@ -149,10 +222,35 @@ const Gym = (() => {
     cont.querySelectorAll('.ejercicio').forEach((card) => {
       const ejId = card.dataset.ej;
       const ej = sesion.ejercicios.find((x) => x.id === ejId);
+      const nSets = totalSeries(ej);
 
       card.querySelector('[data-accion="hecho"]').addEventListener('click', () => {
         marcarHecho(ejId, !hechosDeHoy()[ejId]);
         render();
+      });
+
+      // Toque en una serie: la marca (y las anteriores) y arranca el descanso.
+      card.querySelectorAll('[data-serie]').forEach((dot) => {
+        dot.addEventListener('click', () => {
+          const idx = Number(dot.dataset.serie);
+          const actuales = Math.min(seriesDeHoy()[ejId] || 0, nSets);
+          const nuevas = idx + 1 === actuales ? idx : idx + 1; // tocar la última llena la desmarca
+          guardarSeries(ejId, nuevas);
+          // Refresco visual sin re-render completo (para no matar el timer)
+          card.querySelectorAll('[data-serie]').forEach((d, i) => {
+            const llena = i < nuevas;
+            d.classList.toggle('llena', llena);
+            d.innerHTML = llena ? Iconos.get('check', 13, 2.6) : String(i + 1);
+          });
+          if (nuevas > actuales) {
+            if (nuevas >= nSets) {
+              marcarHecho(ejId, true);
+              render();
+            } else {
+              arrancarDescanso(card, ej.descanso);
+            }
+          }
+        });
       });
 
       ['tecnica', 'registrar'].forEach((panel) => {
@@ -171,27 +269,6 @@ const Gym = (() => {
         }
         guardarMarca(ejId, peso, reps);
         render();
-      });
-
-      card.querySelector('[data-accion="descanso"]').addEventListener('click', () => {
-        pararTimer();
-        const display = card.querySelector('[data-timer]');
-        let restante = ej.descanso;
-        display.hidden = false;
-        const pintar = () => {
-          const m = Math.floor(restante / 60);
-          const s = String(restante % 60).padStart(2, '0');
-          display.textContent = restante > 0 ? 'Descanso: ' + m + ':' + s : 'Listo. Siguiente serie.';
-        };
-        pintar();
-        timerActivo = {
-          ejercicioId: ejId,
-          intervalo: setInterval(() => {
-            restante -= 1;
-            pintar();
-            if (restante <= 0) pararTimer();
-          }, 1000)
-        };
       });
     });
 
