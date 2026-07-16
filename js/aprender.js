@@ -20,6 +20,11 @@ const Aprender = (() => {
 
   function abrir(id) { piezaAbierta = id; }
 
+  function pilarClase(pilar) {
+    const m = { 'Cuerpo': 'cuerpo', 'Cabeza': 'cabeza', 'Plata': 'plata', 'Sistema': 'sistema' };
+    return m[pilar] || 'sistema';
+  }
+
   function render() {
     const cont = document.getElementById('aprender-contenido');
     const deHoy = APRENDER_PIEZAS[indiceDeHoy()];
@@ -28,10 +33,11 @@ const Aprender = (() => {
       : deHoy;
     const esLaDeHoy = pieza.id === deHoy.id;
 
-    let html = '<div class="tarjeta">' +
-      '<p class="player-rutina">' + (esLaDeHoy ? 'La de hoy' : 'Del archivo') + ' · ' + esc(pieza.pilar) + ' · ' + pieza.min + ' min</p>' +
-      '<h2 style="font-family:var(--display); font-size:20px; margin:0 0 12px;">' + esc(pieza.titulo) + '</h2>' +
-      pieza.cuerpo.map((p) => '<p style="font-size:15px; color:var(--texto-2); line-height:1.6; margin:0 0 12px;">' + esc(p) + '</p>').join('') +
+    const pc = 'pc-' + pilarClase(pieza.pilar);
+    let html = '<div class="tarjeta lectura ' + pc + '">' +
+      '<span class="kicker">' + Iconos.get('aprender', 14) + (esLaDeHoy ? 'La de hoy' : 'Del archivo') + ' · ' + esc(pieza.pilar) + ' · ' + pieza.min + ' min</span>' +
+      '<h2>' + esc(pieza.titulo) + '</h2>' +
+      pieza.cuerpo.map((p) => '<p>' + esc(p) + '</p>').join('') +
       '</div>';
 
     if (esLaDeHoy) {
@@ -42,9 +48,10 @@ const Aprender = (() => {
     }
 
     // Archivo
-    html += '<div class="bloque-cabecera" style="margin-top:20px;"><h3>Todas las piezas</h3><span class="conteo">' + APRENDER_PIEZAS.length + ' · crece por tandas</span></div>';
+    html += '<div class="bloque-cabecera" style="margin-top:20px;"><h3>Todas las piezas</h3><span class="conteo">' + APRENDER_PIEZAS.length + '</span></div>';
     APRENDER_PIEZAS.forEach((p) => {
-      html += '<button class="pieza" data-pieza="' + p.id + '" style="width:100%; text-align:left; font-family:inherit;">' +
+      html += '<button class="pieza pc-' + pilarClase(p.pilar) + '" data-pieza="' + p.id + '" style="width:100%; text-align:left; font-family:inherit;">' +
+        '<span class="pieza-icono">' + Iconos.get('aprender', 20) + '</span>' +
         '<div class="cuerpo"><p class="titulo" style="font-size:14.5px;">' + esc(p.titulo) + '</p>' +
         '<p class="meta">' + esc(p.pilar) + ' · ' + p.min + ' min' + (p.id === deHoy.id ? ' · HOY' : '') + '</p></div>' +
         '</button>';

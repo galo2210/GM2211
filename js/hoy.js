@@ -13,10 +13,20 @@ const Hoy = (() => {
     return d.innerHTML;
   }
 
+  function diasABrasil() {
+    const viaje = new Date(2027, 0, 15);
+    return Math.max(0, Math.ceil((viaje - Date.now()) / 86400000));
+  }
+
   // ---------- HOY ----------
   function renderHoy() {
     const dia = Motor.obtenerDia();
     const cont = document.getElementById('hoy-contenido');
+
+    // Cuenta regresiva a Brasil en la cabecera
+    const chip = document.getElementById('hoy-brasil');
+    if (chip) chip.innerHTML = Iconos.get('energia', 13) + 'Brasil en ' + diasABrasil() + ' días';
+
     let html = '';
 
     html += tarjetaParaAhora(dia);
@@ -93,21 +103,25 @@ const Hoy = (() => {
 
   function tarjetaParaAhora(dia) {
     if (dia.cerrado) {
-      return '<div class="para-ahora"><p class="etiqueta">Día cerrado</p>' +
-        '<h2>Listo por hoy.</h2>' +
+      return '<div class="para-ahora pc-cabeza">' +
+        '<div class="ahora-top"><span class="badge">' + Iconos.get('sueno', 24) + '</span>' +
+        '<div><p class="etiqueta">Día cerrado</p><h2>Listo por hoy.</h2></div></div>' +
         '<p class="porque">Lo que quedó, quedó bien. Descansá.</p></div>';
     }
     const pieza = Motor.paraAhora(dia, salteadas);
     if (!pieza) {
-      return '<div class="para-ahora"><p class="etiqueta">Para ahora</p>' +
-        '<h2>No queda nada pendiente.</h2>' +
+      return '<div class="para-ahora pc-sistema">' +
+        '<div class="ahora-top"><span class="badge">' + Iconos.get('check', 24) + '</span>' +
+        '<div><p class="etiqueta">Para ahora</p><h2>Nada pendiente.</h2></div></div>' +
         '<p class="porque">Día completo. A la noche te espera el cierre.</p></div>';
     }
     const p = Motor.plantilla(pieza.ref);
+    const info = Iconos.dePieza(pieza.ref);
     const porque = p.porque || 'Es lo que sigue en tu día.';
-    return '<div class="para-ahora">' +
-      '<p class="etiqueta">Para ahora</p>' +
-      '<h2>' + esc(p.titulo) + '</h2>' +
+    return '<div class="para-ahora pc-' + info.pilar + '">' +
+      '<div class="ahora-top"><span class="badge">' + Iconos.get(info.icono, 24) + '</span>' +
+      '<div><p class="etiqueta">Para ahora</p>' +
+      '<h2>' + esc(p.titulo) + '</h2></div></div>' +
       '<p class="detalle">' + esc(p.meta) + (p.opcional ? ' · opcional' : '') + '</p>' +
       '<p class="porque">' + esc(porque) + '</p>' +
       '<div class="acciones">' +
@@ -122,10 +136,11 @@ const Hoy = (() => {
     let html = '<section class="bloque"><div class="bloque-cabecera"><h3>Tuyo hoy</h3>' +
       '<span class="conteo">' + tareas.length + '</span></div>';
     tareas.forEach((t) => {
-      html += '<div class="pieza" data-tarea-hoy="' + t.id + '">' +
-        '<span class="estado"></span>' +
+      html += '<div class="pieza pc-sistema" data-tarea-hoy="' + t.id + '">' +
+        '<span class="pieza-icono">' + Iconos.get('tuyo', 20) + '</span>' +
         '<div class="cuerpo"><p class="titulo">' + esc(t.texto) + '</p>' +
-        '<p class="meta">Tarea tuya · tocá para marcarla</p></div></div>';
+        '<p class="meta">Tarea tuya · tocá para marcarla</p></div>' +
+        '<span class="estado"></span></div>';
     });
     return html + '</section>';
   }
@@ -143,12 +158,14 @@ const Hoy = (() => {
       const p = Motor.plantilla(x.ref);
       const hecha = x.estado === 'hecha';
       const soltada = x.estado === 'soltada';
-      html += '<div class="pieza' + (hecha ? ' hecha' : '') + (soltada ? ' soltada' : '') + '" data-uid="' + x.uid + '">' +
-        '<span class="estado">' + (hecha ? iconoTilde() : '') + '</span>' +
+      const info = Iconos.dePieza(x.ref);
+      html += '<div class="pieza pc-' + info.pilar + (hecha ? ' hecha' : '') + (soltada ? ' soltada' : '') + '" data-uid="' + x.uid + '">' +
+        '<span class="pieza-icono">' + Iconos.get(info.icono, 20) + '</span>' +
         '<div class="cuerpo"><p class="titulo">' + esc(p.titulo) + '</p>' +
         '<p class="meta">' + esc(p.meta) + '</p></div>' +
         (p.opcional ? '<span class="tag">Opcional</span>' : '') +
         (x.deAyer ? '<span class="tag">De ayer</span>' : '') +
+        '<span class="estado">' + (hecha ? Iconos.get('check', 14, 2.4) : '') + '</span>' +
         '</div>';
     });
 
@@ -157,22 +174,15 @@ const Hoy = (() => {
         html += '<div class="cierre-card"><div class="cuerpo"><p class="titulo">Día cerrado</p>' +
           '<p class="meta">Hasta mañana.</p></div></div>';
       } else if (new Date().getHours() >= 19) {
-        html += '<button class="cierre-card activo" id="btn-ir-cierre"><div class="cuerpo">' +
-          '<p class="titulo">Cierre del día</p>' +
-          '<p class="meta">Repaso + ánimo · 1 minuto</p></div>' + iconoFlecha() + '</button>';
+        html += '<button class="cierre-card activo" id="btn-ir-cierre">' +
+          '<div class="cuerpo"><p class="titulo">Cierre del día</p>' +
+          '<p class="meta">Repaso + ánimo · 1 minuto</p></div>' + Iconos.get('flecha', 14) + '</button>';
       } else {
         html += '<div class="cierre-card"><div class="cuerpo"><p class="titulo">Cierre del día</p>' +
           '<p class="meta">Se abre a la noche</p></div></div>';
       }
     }
     return html + '</section>';
-  }
-
-  function iconoTilde() {
-    return '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6.5L4.5 9L10 3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  }
-  function iconoFlecha() {
-    return '<svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1L6 6L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
   }
 
   // ---------- CIERRE ----------

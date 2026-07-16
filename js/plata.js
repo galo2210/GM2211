@@ -38,9 +38,10 @@ const Plata = (() => {
     let html = '';
 
     // ---------- Fondo Brasil ----------
-    html += '<div class="para-ahora">' +
-      '<p class="etiqueta">Fondo Brasil · enero 2027</p>' +
-      '<h2>' + usd(aportado) + ' <span style="font-size:15px; color:var(--texto-3); font-weight:400;">de ' + usd(meta) + '</span></h2>' +
+    html += '<div class="para-ahora pc-plata">' +
+      '<div class="ahora-top"><span class="badge">' + Iconos.get('plata', 24) + '</span>' +
+      '<div><p class="etiqueta">Fondo Brasil · enero 2027</p>' +
+      '<h2>' + usd(aportado) + ' <span style="font-size:15px; color:var(--texto-3); font-weight:400;">de ' + usd(meta) + '</span></h2></div></div>' +
       '<div class="barra"><div style="width:' + pct + '%;"></div></div>' +
       '<p class="detalle">' + pct + '% · faltan ' + usd(falta) + (falta > 0 ? ' ≈ ' + usd(porMes) + '/mes por ' + mesesRestantes + ' meses' : ' · ¡LLEGASTE!') + '</p>' +
       '<p class="porque">El aporte es flexible: cargá lo que puedas cada mes y la cuenta se rehace sola. Sin drama si un mes es menos.</p>' +

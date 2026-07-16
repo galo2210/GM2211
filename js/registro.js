@@ -4,16 +4,16 @@
 const Registro = (() => {
 
   const TIPOS = [
-    { tipo: 'comida', nombre: 'Comida' },
-    { tipo: 'peso', nombre: 'Peso' },
-    { tipo: 'pasos', nombre: 'Pasos' },
-    { tipo: 'animo', nombre: 'Ánimo' },
-    { tipo: 'sueno', nombre: 'Sueño' },
-    { tipo: 'marihuana', nombre: 'Marihuana' },
-    { tipo: 'gasto', nombre: 'Gasto' },
-    { tipo: 'ingreso', nombre: 'Ingreso' },
-    { tipo: 'nota', nombre: 'Nota' },
-    { tipo: 'tarea', nombre: 'Tarea' }
+    { tipo: 'comida', nombre: 'Comida', icono: 'comida', pilar: 'cuerpo' },
+    { tipo: 'peso', nombre: 'Peso', icono: 'progreso', pilar: 'cuerpo' },
+    { tipo: 'pasos', nombre: 'Pasos', icono: 'pasos', pilar: 'cuerpo' },
+    { tipo: 'animo', nombre: 'Ánimo', icono: 'cabeza', pilar: 'cabeza' },
+    { tipo: 'sueno', nombre: 'Sueño', icono: 'sueno', pilar: 'cabeza' },
+    { tipo: 'marihuana', nombre: 'Marihuana', icono: 'energia', pilar: 'cabeza' },
+    { tipo: 'gasto', nombre: 'Gasto', icono: 'plata', pilar: 'plata' },
+    { tipo: 'ingreso', nombre: 'Ingreso', icono: 'plata', pilar: 'plata' },
+    { tipo: 'nota', nombre: 'Nota', icono: 'tuyo', pilar: 'sistema' },
+    { tipo: 'tarea', nombre: 'Tarea', icono: 'rutina', pilar: 'sistema' }
   ];
 
   const CATEGORIAS_GASTO = ['Comida', 'Súper', 'Salida', 'Transporte', 'Marihuana', 'Casa', 'Otro'];
@@ -45,10 +45,11 @@ const Registro = (() => {
     const cont = document.getElementById('hoja-cuerpo');
     let html = '<div class="registro-grilla">';
     tiposActivos().forEach((t) => {
-      html += '<button class="registro-opcion" data-tipo="' + t.tipo + '">' + esc(t.nombre) + '</button>';
+      html += '<button class="registro-opcion pc-' + t.pilar + '" data-tipo="' + t.tipo + '">' +
+        '<span class="ic" style="color:var(--pc);">' + Iconos.get(t.icono, 20) + '</span>' + esc(t.nombre) + '</button>';
     });
     html += '</div>' +
-      '<p class="hoja-ayuda" style="margin:12px 0 0;">Qué aparece acá se elige en Ajustes.</p>';
+      '<p class="hoja-ayuda" style="margin:14px 0 0;">Qué aparece acá se elige en Ajustes.</p>';
     cont.innerHTML = html;
     cont.querySelectorAll('[data-tipo]').forEach((b) => {
       b.addEventListener('click', () => renderForm(b.dataset.tipo));
