@@ -909,6 +909,326 @@ nav {
   box-shadow: var(--sombra-fuerte);
 }
 
+/* ============================================================
+   COMPONENTES RICOS v1.2 — interior de las secciones
+   ============================================================ */
+
+/* ---------- Stat tiles (Progreso, cabeceras de sección) ---------- */
+.stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.stats.tres { grid-template-columns: repeat(3, 1fr); }
+.stat {
+  background: var(--superficie);
+  border: 1px solid var(--borde-suave);
+  border-radius: 15px;
+  padding: 14px;
+  box-shadow: var(--sombra);
+  position: relative;
+  overflow: hidden;
+}
+.stat::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  width: 4px;
+  background: var(--pc, var(--acento));
+}
+.stat .s-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--texto-3);
+  margin: 0 0 6px;
+}
+.stat .s-label svg { color: var(--pc, var(--acento)); }
+.stat .s-valor {
+  font-family: var(--mono);
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--texto-1);
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+.stat .s-valor small { font-size: 13px; color: var(--texto-3); font-weight: 500; }
+.stat .s-sub { font-family: var(--mono); font-size: 11px; color: var(--texto-3); margin: 3px 0 0; }
+
+/* ---------- Tracker de series (gym) ---------- */
+.series-fila {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+.series-label { font-family: var(--mono); font-size: 11px; color: var(--texto-3); letter-spacing: 0.06em; text-transform: uppercase; flex: none; }
+.serie-dots { display: flex; gap: 8px; flex: 1; }
+.serie-dot {
+  flex: 1;
+  max-width: 52px;
+  height: 40px;
+  border-radius: 11px;
+  border: 1.5px solid var(--borde);
+  background: var(--superficie-2);
+  color: var(--texto-3);
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: transform 0.08s ease, background 0.12s ease;
+}
+.serie-dot:active { transform: scale(0.92); }
+.serie-dot.llena {
+  border-color: var(--cuerpo);
+  background: var(--cuerpo);
+  color: #fff;
+}
+.serie-dot:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+
+/* ---------- Timer de descanso como barra ---------- */
+.timer-zona { margin-top: 12px; }
+.timer-barra {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--superficie-2);
+  overflow: hidden;
+}
+.timer-barra div {
+  height: 100%;
+  background: var(--cuerpo);
+  border-radius: 999px;
+  transition: width 1s linear;
+}
+.timer-texto {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--texto-2);
+  margin-top: 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Técnica estructurada (gym) ---------- */
+.tec-seccion { display: flex; gap: 11px; margin: 0 0 12px; }
+.tec-seccion .tec-ic {
+  flex: none;
+  width: 30px; height: 30px;
+  border-radius: 9px;
+  display: grid; place-items: center;
+  background: var(--cuerpo-tenue);
+  color: var(--cuerpo);
+}
+.tec-seccion .tec-txt { flex: 1; }
+.tec-seccion h4 {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--cuerpo);
+  margin: 0 0 3px;
+}
+.tec-seccion p { font-size: 14.5px; color: var(--texto-1); line-height: 1.55; margin: 0; }
+.tec-seccion.suave .tec-ic { background: var(--superficie-2); color: var(--texto-3); }
+.tec-seccion.suave h4 { color: var(--texto-3); }
+.tec-seccion.suave p { color: var(--texto-2); }
+
+/* ---------- Cabecera de sesión (gym) ---------- */
+.sesion-head {
+  background: var(--superficie);
+  border: 1px solid var(--borde-suave);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: var(--sombra-fuerte);
+  position: relative;
+  overflow: hidden;
+}
+.sesion-head::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: var(--cuerpo);
+}
+.sesion-head .sh-top { display: flex; align-items: center; gap: 12px; }
+.sesion-head .badge {
+  flex: none;
+  width: 46px; height: 46px;
+  border-radius: 14px;
+  display: grid; place-items: center;
+  color: var(--cuerpo);
+  background: var(--cuerpo-tenue);
+}
+.sesion-head h2 { font-family: var(--display); font-size: 22px; margin: 0; }
+.sesion-head .sh-sub { font-family: var(--mono); font-size: 12px; color: var(--texto-3); margin: 2px 0 0; }
+.sesion-head .barra { margin: 14px 0 6px; }
+.sesion-head .barra div { background: var(--cuerpo); }
+.sesion-head .sh-prog { font-family: var(--mono); font-size: 11.5px; color: var(--texto-2); }
+
+/* ---------- Recetas ricas ---------- */
+.receta-macros { display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0 14px; }
+.macro-chip {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cuerpo);
+  background: var(--cuerpo-tenue);
+  border-radius: 999px;
+  padding: 6px 12px;
+}
+.ing-fila {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--borde-suave);
+  cursor: pointer;
+}
+.ing-fila:last-child { border-bottom: none; }
+.ing-check {
+  flex: none;
+  width: 24px; height: 24px;
+  border-radius: 8px;
+  border: 2px solid var(--borde);
+  display: grid; place-items: center;
+  color: transparent;
+}
+.ing-fila.tengo .ing-check { border-color: var(--verde); background: var(--verde); color: #fff; }
+.ing-fila span { font-size: 15px; color: var(--texto-1); }
+.ing-fila.tengo span { color: var(--texto-3); text-decoration: line-through; }
+
+.paso-fila { display: flex; gap: 13px; margin: 0 0 14px; }
+.paso-num {
+  flex: none;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--cuerpo);
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  display: grid; place-items: center;
+  margin-top: 1px;
+}
+.paso-fila p { font-size: 15px; color: var(--texto-1); line-height: 1.55; margin: 0; }
+
+/* ---------- Respiración: círculo que respira ---------- */
+.resp-escena {
+  display: grid;
+  place-items: center;
+  padding: 26px 0 10px;
+}
+.resp-circulo {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: var(--cabeza-tenue);
+  border: 2.5px solid var(--cabeza);
+  display: grid;
+  place-items: center;
+  text-align: center;
+  transform: scale(0.68);
+  transition-property: transform;
+  transition-timing-function: cubic-bezier(0.45, 0, 0.55, 1);
+  will-change: transform;
+}
+.resp-circulo.grande { transform: scale(1); }
+.resp-circulo .rc-fase {
+  font-family: var(--display);
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--cabeza);
+  margin: 0;
+}
+.resp-circulo .rc-num {
+  font-family: var(--mono);
+  font-size: 40px;
+  font-weight: 500;
+  color: var(--texto-1);
+  margin: 2px 0 0;
+  font-variant-numeric: tabular-nums;
+}
+.resp-ciclos {
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--texto-3);
+  margin: 16px 0 0;
+  letter-spacing: 0.08em;
+}
+.fase-patron { display: flex; gap: 5px; margin-top: 10px; }
+.fase-seg {
+  height: 26px;
+  border-radius: 8px;
+  background: var(--cabeza-tenue);
+  color: var(--cabeza);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  min-width: 26px;
+}
+
+/* ---------- Player: puntos de progreso ---------- */
+.pasos-dots { display: flex; gap: 6px; justify-content: center; margin: 0 0 14px; }
+.pasos-dots span {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--borde);
+}
+.pasos-dots span.hecho { background: var(--pc, var(--cabeza)); }
+.pasos-dots span.actual {
+  background: var(--pc, var(--cabeza));
+  width: 22px;
+  border-radius: 999px;
+}
+
+/* ---------- Lista de rutinas (movilidad) ---------- */
+.rutina-card {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  width: 100%;
+  background: var(--superficie);
+  border: 1px solid var(--borde-suave);
+  border-radius: 15px;
+  padding: 13px 14px;
+  box-shadow: var(--sombra);
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--sans);
+  transition: transform 0.08s ease;
+}
+.rutina-card:active { transform: scale(0.99); }
+.rutina-card .ic {
+  flex: none;
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  display: grid; place-items: center;
+  color: var(--pc, var(--cuerpo));
+  background: var(--pct, var(--cuerpo-tenue));
+}
+.rutina-card .cuerpo { flex: 1; min-width: 0; }
+.rutina-card .titulo { font-size: 15px; font-weight: 600; margin: 0; color: var(--texto-1); }
+.rutina-card .meta { font-family: var(--mono); font-size: 12px; color: var(--texto-3); margin: 3px 0 0; }
+.rutina-card .dur {
+  flex: none;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--pc, var(--cuerpo));
+  background: var(--pct, var(--cuerpo-tenue));
+  border-radius: 999px;
+  padding: 6px 11px;
+  white-space: nowrap;
+}
+.rutina-card:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+
 @media (prefers-reduced-motion: reduce) {
-  *, .pantalla.visible, .hoja, .hoja-fondo.visible { animation: none !important; transition: none !important; }
+  *, .pantalla.visible, .hoja, .hoja-fondo.visible, .resp-circulo { animation: none !important; transition: none !important; }
 }
