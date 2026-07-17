@@ -4,6 +4,35 @@
 (() => {
   Store.init();
 
+  // ---------- Tema (Obsidiana por defecto, Plata como alternativa) ----------
+  const TEMAS = { obsidiana: '#0C0D10', plata: '#E4E7EC' };
+
+  function aplicarTema(nombre) {
+    const tema = TEMAS[nombre] ? nombre : 'obsidiana';
+    document.documentElement.setAttribute('data-tema', tema);
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', TEMAS[tema]);
+  }
+
+  function renderTema() {
+    const cont = document.getElementById('ajustes-tema');
+    if (!cont) return;
+    const actual = Store.leer('tema', 'obsidiana');
+    cont.innerHTML = '<div class="chips">' +
+      '<button class="chip' + (actual === 'obsidiana' ? ' activo' : '') + '" data-tema-op="obsidiana">Obsidiana · oscuro</button>' +
+      '<button class="chip' + (actual === 'plata' ? ' activo' : '') + '" data-tema-op="plata">Plata · claro</button>' +
+      '</div>';
+    cont.querySelectorAll('[data-tema-op]').forEach((b) => {
+      b.addEventListener('click', () => {
+        Store.guardar('tema', b.dataset.temaOp);
+        aplicarTema(b.dataset.temaOp);
+        renderTema();
+      });
+    });
+  }
+
+  aplicarTema(Store.leer('tema', 'obsidiana'));
+
   // ---------- Cabecera de HOY ----------
   function saludo() {
     const h = new Date().getHours();
@@ -43,7 +72,7 @@
     if (destino === 'comida') Comida.render();
     if (destino === 'compras') Compras.render();
     if (destino === 'biblioteca') Biblioteca.render();
-    if (destino === 'ajustes') Registro.renderConfig();
+    if (destino === 'ajustes') { Registro.renderConfig(); renderTema(); }
     if (destino === 'movilidad') Movilidad.renderLista();
     if (destino === 'player') Movilidad.renderPlayer();
     if (destino === 'respirar') Respiracion.renderLista();
