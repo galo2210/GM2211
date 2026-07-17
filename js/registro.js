@@ -4,16 +4,16 @@
 const Registro = (() => {
 
   const TIPOS = [
-    { tipo: 'comida', nombre: 'Comida', icono: 'comida', pilar: 'cuerpo' },
-    { tipo: 'peso', nombre: 'Peso', icono: 'progreso', pilar: 'cuerpo' },
-    { tipo: 'pasos', nombre: 'Pasos', icono: 'pasos', pilar: 'cuerpo' },
-    { tipo: 'animo', nombre: 'Ánimo', icono: 'cabeza', pilar: 'cabeza' },
-    { tipo: 'sueno', nombre: 'Sueño', icono: 'sueno', pilar: 'cabeza' },
-    { tipo: 'marihuana', nombre: 'Marihuana', icono: 'energia', pilar: 'cabeza' },
-    { tipo: 'gasto', nombre: 'Gasto', icono: 'plata', pilar: 'plata' },
-    { tipo: 'ingreso', nombre: 'Ingreso', icono: 'plata', pilar: 'plata' },
-    { tipo: 'nota', nombre: 'Nota', icono: 'tuyo', pilar: 'sistema' },
-    { tipo: 'tarea', nombre: 'Tarea', icono: 'rutina', pilar: 'sistema' }
+    { tipo: 'comida', nombre: 'Comida', sub: 'Qué comiste, con macros', icono: 'comida', pilar: 'cuerpo' },
+    { tipo: 'peso', nombre: 'Peso', sub: 'De la balanza, en kg', icono: 'progreso', pilar: 'cuerpo' },
+    { tipo: 'pasos', nombre: 'Pasos', sub: 'El número de la app Salud', icono: 'pasos', pilar: 'cuerpo' },
+    { tipo: 'animo', nombre: 'Ánimo', sub: 'Cómo venís, del 1 al 5', icono: 'cabeza', pilar: 'cabeza' },
+    { tipo: 'sueno', nombre: 'Sueño', sub: 'Horas dormidas anoche', icono: 'sueno', pilar: 'cabeza' },
+    { tipo: 'marihuana', nombre: 'Marihuana', sub: 'Solo el dato, sin juicio', icono: 'energia', pilar: 'cabeza' },
+    { tipo: 'gasto', nombre: 'Gasto', sub: 'Lo que salió, por categoría', icono: 'plata', pilar: 'plata' },
+    { tipo: 'ingreso', nombre: 'Ingreso', sub: 'Lo que entró y de dónde', icono: 'plata', pilar: 'plata' },
+    { tipo: 'nota', nombre: 'Nota', sub: 'Lo que tengas en la cabeza', icono: 'tuyo', pilar: 'sistema' },
+    { tipo: 'tarea', nombre: 'Tarea', sub: 'Con fecha aparece en HOY', icono: 'rutina', pilar: 'sistema' }
   ];
 
   const CATEGORIAS_GASTO = ['Comida', 'Súper', 'Salida', 'Transporte', 'Marihuana', 'Casa', 'Otro'];
@@ -43,13 +43,16 @@ const Registro = (() => {
 
   function renderMenu() {
     const cont = document.getElementById('hoja-cuerpo');
-    let html = '<div class="registro-grilla">';
+    let html = '<p class="hoja-ayuda" style="margin:0 0 12px;">Un toque, un dato guardado. Todo esto alimenta tus gráficos de Progreso.</p>' +
+      '<div class="registro-grilla">';
     tiposActivos().forEach((t) => {
       html += '<button class="registro-opcion pc-' + t.pilar + '" data-tipo="' + t.tipo + '">' +
-        '<span class="ic" style="color:var(--pc);">' + Iconos.get(t.icono, 20) + '</span>' + esc(t.nombre) + '</button>';
+        '<span class="ic" style="color:var(--pc);">' + Iconos.get(t.icono, 20) + '</span>' +
+        '<span><span style="display:block;">' + esc(t.nombre) + '</span>' +
+        '<span style="display:block; font-size:11.5px; font-weight:500; color:var(--texto-3); line-height:1.25;">' + esc(t.sub) + '</span></span>' +
+        '</button>';
     });
-    html += '</div>' +
-      '<p class="hoja-ayuda" style="margin:14px 0 0;">Qué aparece acá se elige en Ajustes.</p>';
+    html += '</div>';
     cont.innerHTML = html;
     cont.querySelectorAll('[data-tipo]').forEach((b) => {
       b.addEventListener('click', () => renderForm(b.dataset.tipo));
@@ -194,6 +197,7 @@ const Registro = (() => {
       b.addEventListener('click', () => {
         guardarRegistro(tipo, Number(b.dataset.valor));
         cerrarHoja();
+        if (location.hash === '#/progreso') Progreso.render();
       });
     });
 
@@ -246,7 +250,8 @@ const Registro = (() => {
           Store.guardar('tareas', tareas);
         }
         cerrarHoja();
-        if (location.hash === '#/hoy' || location.hash === '' ) Hoy.renderHoy();
+        if (location.hash === '#/hoy' || location.hash === '') Hoy.renderHoy();
+        if (location.hash === '#/progreso') Progreso.render();
       });
     }
   }
@@ -262,5 +267,11 @@ const Registro = (() => {
     renderMenu();
   }
 
-  return { init, guardarRegistro, renderConfig };
+  // Abre la hoja directo en un tipo (lo usan los gráficos vacíos de Progreso).
+  function abrirEn(tipo) {
+    document.getElementById('hoja-registro').classList.add('visible');
+    renderForm(tipo);
+  }
+
+  return { init, guardarRegistro, renderConfig, abrirEn };
 })();

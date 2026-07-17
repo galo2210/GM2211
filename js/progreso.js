@@ -58,12 +58,18 @@ const Progreso = (() => {
   }
 
   // ---------- Render ----------
-  function stat(pilar, icono, label, valor, sub) {
-    return '<div class="stat pc-' + pilar + '">' +
+  function stat(pilar, icono, label, valor, sub, tipoRegistro) {
+    return '<button class="stat pc-' + pilar + '"' + (tipoRegistro ? ' data-registrar="' + tipoRegistro + '"' : '') +
+      ' style="text-align:left; font-family:var(--sans); cursor:pointer;">' +
       '<p class="s-label">' + Iconos.get(icono, 13) + label + '</p>' +
       '<p class="s-valor">' + valor + '</p>' +
       (sub ? '<p class="s-sub">' + sub + '</p>' : '') +
-      '</div>';
+      '</button>';
+  }
+
+  function botonCargar(tipo, texto) {
+    return '<button class="btn btn-secundario" data-registrar="' + tipo + '" style="width:100%; margin-top:12px; min-height:42px; font-size:14px;">' +
+      (texto || 'Cargar ahora con el (+)') + '</button>';
   }
 
   function render() {
@@ -83,19 +89,22 @@ const Progreso = (() => {
     const animo7 = prom(animosT.filter((r) => new Date(r.fecha) >= hace7).map((r) => r.valor));
     const sueno7 = prom(suenosT.filter((r) => new Date(r.fecha) >= hace7).map((r) => r.valor));
 
+    // Cómo funciona, en una línea
+    html += '<div class="tarjeta vacio"><p><strong>Así funciona:</strong> todo lo que cargás con el <strong>(+)</strong> se convierte en estos números y gráficos. Tocá cualquier tarjeta con — para cargar su dato ahora.</p></div>';
+
     html += '<div class="stats">' +
       stat('cuerpo', 'progreso', 'Peso',
         pesosT.length ? String(pesosT[pesosT.length - 1].valor).replace('.', ',') + '<small> kg</small>' : '—',
-        pesosT.length ? 'últ. registro' : 'cargalo con el (+)') +
+        pesosT.length ? 'últ. registro · tocá p/ cargar' : 'tocá para cargar', 'peso') +
       stat('cuerpo', 'pasos', 'Pasos hoy',
         pasosHoy.length ? Math.max(...pasosHoy).toLocaleString('es-AR') : '—',
-        pasosHoy.length ? '' : 'de la app Salud') +
+        pasosHoy.length ? 'tocá p/ actualizar' : 'tocá para cargar', 'pasos') +
       stat('cabeza', 'cabeza', 'Ánimo · 7 días',
         animo7 !== null ? animo7.toFixed(1) + '<small> / 5</small>' : '—',
-        animo7 !== null ? '' : 'lo pregunta el cierre') +
+        animo7 !== null ? 'promedio semanal' : 'tocá para cargar', 'animo') +
       stat('cabeza', 'sueno', 'Sueño · 7 días',
         sueno7 !== null ? sueno7.toFixed(1) + '<small> hs</small>' : '—',
-        sueno7 !== null ? '' : 'un toque a la mañana') +
+        sueno7 !== null ? 'promedio semanal' : 'tocá para cargar', 'sueno') +
       '</div>';
 
     // Comida de hoy
@@ -111,7 +120,7 @@ const Progreso = (() => {
 
     // Peso
     const pesos = porTipo('peso');
-    html += '<div class="tarjeta"><h2>Peso</h2>';
+    html += '<div class="tarjeta"><h2>Peso</h2><p class="mono" style="margin:-4px 0 8px;">La tendencia importa; el día suelto no.</p>';
     if (pesos.length >= 2) {
       const vals = pesos.slice(-30).map((r) => r.valor);
       const delta = (vals[vals.length - 1] - vals[0]).toFixed(1);
@@ -119,13 +128,13 @@ const Progreso = (() => {
         '<div class="fila-dato"><span>' + vals[0] + ' kg → <strong>' + vals[vals.length - 1] + ' kg</strong></span>' +
         '<span class="valor" style="color:var(--texto-2);">' + (delta > 0 ? '+' : '') + delta + ' kg</span></div>';
     } else {
-      html += '<p>Dos pesajes y acá aparece la línea. Mismo momento del día, dato comparable.</p>';
+      html += '<p>Con dos pesajes acá aparece la línea. Pesate al levantarte, después del baño: mismo momento, dato comparable.</p>' + botonCargar('peso', 'Cargar mi peso de hoy');
     }
     html += '</div>';
 
     // Pasos de la semana
     const pasos = porTipo('pasos');
-    html += '<div class="tarjeta"><h2>Pasos · últimos 7 días</h2>';
+    html += '<div class="tarjeta"><h2>Pasos · últimos 7 días</h2><p class="mono" style="margin:-4px 0 8px;">Meta: 10.000 los días de gym, 6.000 el resto.</p>';
     if (pasos.length > 0) {
       const dias = [];
       const etiquetas = [];
@@ -140,26 +149,26 @@ const Progreso = (() => {
       html += barras(dias, etiquetas, 10000) +
         '<p class="mono" style="margin-top:6px;">La línea punteada es la meta de 10.000.</p>';
     } else {
-      html += '<p>Cargá los pasos de la app Salud con el (+) y acá se dibuja la semana.</p>';
+      html += '<p>Abrí la app Salud del iPhone, mirá el número de hoy y cargalo acá. La semana se dibuja sola.</p>' + botonCargar('pasos', 'Cargar mis pasos de hoy');
     }
     html += '</div>';
 
     // Ánimo
     const animos = porTipo('animo');
-    html += '<div class="tarjeta"><h2>Ánimo</h2>';
+    html += '<div class="tarjeta"><h2>Ánimo</h2><p class="mono" style="margin:-4px 0 8px;">Lo pregunta el cierre cada noche. 1 = pozo · 5 = enchufado.</p>';
     if (animos.length >= 2) {
       const vals = animos.slice(-14).map((r) => r.valor);
       const prom = (vals.reduce((s, v) => s + v, 0) / vals.length).toFixed(1);
       html += sparkline(vals, { min: 1, max: 5 }) +
         '<div class="fila-dato"><span>Promedio últimos ' + vals.length + '</span><span class="valor">' + prom + ' / 5</span></div>';
     } else {
-      html += '<p>El cierre lo pregunta cada noche. En unos días esta línea empieza a contar tu historia.</p>';
+      html += '<p>En unos días de cierres esta línea empieza a contar tu historia real — cuándo subís, cuándo caés, y qué lo explica.</p>' + botonCargar('animo', 'Cargar mi ánimo de ahora');
     }
     html += '</div>';
 
     // Sueño + correlación con ánimo
     const suenos = porTipo('sueno');
-    html += '<div class="tarjeta"><h2>Sueño</h2>';
+    html += '<div class="tarjeta"><h2>Sueño</h2><p class="mono" style="margin:-4px 0 8px;">Un toque cada mañana. Acá se cruza con tu ánimo.</p>';
     if (suenos.length >= 2) {
       const vals = suenos.slice(-14).map((r) => r.valor);
       html += sparkline(vals, { min: 4, max: 10 });
@@ -180,7 +189,7 @@ const Progreso = (() => {
         html += '<p style="margin-top:6px;">Con unas semanas de datos, acá aparece TU correlación sueño-energía. Con datos tuyos, no de un paper.</p>';
       }
     } else {
-      html += '<p>Un toque cada mañana. La correlación con tu energía se arma sola.</p>';
+      html += '<p>Cada mañana cargás las horas dormidas y la app te muestra TU correlación: cómo duerme el ánimo del día siguiente.</p>' + botonCargar('sueno', 'Cargar lo que dormí anoche');
     }
     html += '</div>';
 
@@ -247,6 +256,11 @@ const Progreso = (() => {
     cont.innerHTML = html;
     const btnPlata = cont.querySelector('[data-ir-plata]');
     if (btnPlata) btnPlata.addEventListener('click', () => { location.hash = '#/plata'; });
+
+    // Tarjetas y botones que abren el (+) directo en su tipo
+    cont.querySelectorAll('[data-registrar]').forEach((b) => {
+      b.addEventListener('click', () => Registro.abrirEn(b.dataset.registrar));
+    });
   }
 
   function nombreEjercicio(ejId) {
