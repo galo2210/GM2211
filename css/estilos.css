@@ -1237,6 +1237,14 @@ nav {
   margin-top: 1px;
 }
 .paso-fila p { font-size: 15px; color: var(--texto-1); line-height: 1.55; margin: 0; }
+.paso-tip {
+  font-size: 13px !important;
+  color: var(--texto-3) !important;
+  font-style: italic;
+  margin-top: 5px !important;
+  padding-left: 10px;
+  border-left: 2px solid var(--borde);
+}
 
 /* ---------- Respiración: círculo que respira ---------- */
 .resp-escena {
