@@ -168,14 +168,34 @@ const Gym = (() => {
         '<button class="btn-mini" data-accion="registrar">Anotar peso</button>' +
         '</div>';
 
-      // Técnica en secciones estructuradas
+      // Técnica completa: montaje → ejecución numerada → claves → errores+fix → sentir → progresar → dudas → porqué
       html += '<div class="ej-panel" data-panel="tecnica" hidden>' +
-        tecSeccion('rutina', 'Preparación', ej.nivel2.prep) +
-        tecSeccion('energia', 'Ejecución', ej.nivel2.ejec) +
-        tecSeccion('cerrar', 'Errores que anulan', ej.nivel2.errores) +
-        tecSeccion('cuerpo', 'Qué sentir', ej.nivel2.sentir) +
-        tecSeccion('progreso', 'Cómo progresar', ej.nivel2.progresar) +
-        tecSeccion('aprender', 'Por qué está en tu plan', ej.nivel3, true) +
+        '<h4 class="tec-titulo">' + Iconos.get('rutina', 13) + 'Montaje</h4>' +
+        ej.setup.map((s) => '<div class="setup-fila"><span class="setup-check">' + Iconos.get('check', 11, 2.6) + '</span><p>' + esc(s) + '</p></div>').join('') +
+
+        '<h4 class="tec-titulo">' + Iconos.get('energia', 13) + 'Ejecución</h4>' +
+        ej.pasos.map((p, pi) =>
+          '<div class="paso-fila"><span class="paso-num" style="background:var(--cuerpo);">' + (pi + 1) + '</span>' +
+          '<div style="flex:1;"><p style="margin:0;"><strong>' + esc(p.t) + '.</strong> ' + esc(p.d) + '</p>' +
+          (p.resp && p.resp !== '—' ? '<span class="resp-tag">' + esc(p.resp) + '</span>' : '') +
+          '</div></div>').join('') +
+
+        '<h4 class="tec-titulo">' + Iconos.get('foco', 13) + 'Las 3 claves</h4>' +
+        ej.claves.map((c) => '<div class="clave-fila"><p>' + esc(c) + '</p></div>').join('') +
+
+        '<h4 class="tec-titulo">' + Iconos.get('cerrar', 13) + 'Errores y cómo corregirlos</h4>' +
+        ej.errores.map((er) =>
+          '<div class="err-fila"><p class="err-mal">' + esc(er.e) + '</p>' +
+          '<p class="err-fix">' + esc(er.fix) + '</p></div>').join('') +
+
+        tecSeccion('cuerpo', 'Qué sentir', ej.sentir) +
+        tecSeccion('progreso', 'Cómo progresar', ej.progresar) +
+
+        '<h4 class="tec-titulo">' + Iconos.get('cabeza', 13) + 'Dudas del banco</h4>' +
+        ej.dudas.map((d) =>
+          '<div class="duda"><p class="duda-q">' + esc(d.q) + '</p><p class="duda-a">' + esc(d.a) + '</p></div>').join('') +
+
+        tecSeccion('aprender', 'Por qué está en tu plan', ej.porque, true) +
         tecSeccion('flecha', 'Si está ocupada', ej.variantes.join(' · '), true) +
         '</div>';
 

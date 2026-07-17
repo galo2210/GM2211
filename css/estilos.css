@@ -1085,6 +1085,80 @@ nav {
 .tec-seccion.suave h4 { color: var(--texto-3); }
 .tec-seccion.suave p { color: var(--texto-2); }
 
+/* ---------- Técnica v2: montaje, ejecución, claves, errores, dudas ---------- */
+.tec-titulo {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cuerpo);
+  margin: 18px 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--borde-suave);
+}
+.tec-titulo:first-child { margin-top: 4px; }
+.setup-fila { display: flex; gap: 10px; align-items: flex-start; margin: 0 0 8px; }
+.setup-check {
+  flex: none;
+  width: 20px; height: 20px;
+  border-radius: 7px;
+  background: var(--cuerpo-tenue);
+  color: var(--cuerpo);
+  display: grid; place-items: center;
+  margin-top: 1px;
+}
+.setup-fila p { font-size: 14.5px; color: var(--texto-1); line-height: 1.5; margin: 0; }
+.resp-tag {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--cabeza);
+  background: var(--cabeza-tenue);
+  border-radius: 6px;
+  padding: 3px 8px;
+  margin-top: 6px;
+}
+.clave-fila {
+  background: var(--cuerpo-tenue);
+  border-radius: 11px;
+  padding: 10px 13px;
+  margin: 0 0 7px;
+}
+.clave-fila p { font-size: 14.5px; font-weight: 600; color: var(--texto-1); line-height: 1.45; margin: 0; }
+.err-fila {
+  border: 1px solid var(--borde-suave);
+  border-radius: 12px;
+  padding: 11px 13px;
+  margin: 0 0 8px;
+}
+.err-mal {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--texto-1);
+  margin: 0 0 5px;
+  padding-left: 20px;
+  position: relative;
+}
+.err-mal::before { content: "✕"; position: absolute; left: 0; color: var(--cuerpo); font-weight: 700; }
+.err-fix {
+  font-size: 14px;
+  color: var(--texto-2);
+  line-height: 1.5;
+  margin: 0;
+  padding-left: 20px;
+  position: relative;
+}
+.err-fix::before { content: "✓"; position: absolute; left: 0; color: var(--verde); font-weight: 700; }
+.duda { margin: 0 0 12px; }
+.duda-q { font-size: 14.5px; font-weight: 600; color: var(--texto-1); margin: 0 0 4px; }
+.duda-a { font-size: 14px; color: var(--texto-2); line-height: 1.55; margin: 0; }
+
 /* ---------- Cabecera de sesión (gym) ---------- */
 .sesion-head {
   background: var(--superficie);
