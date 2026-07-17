@@ -18,6 +18,24 @@ const Hoy = (() => {
     return Math.max(0, Math.ceil((viaje - Date.now()) / 86400000));
   }
 
+  // Anillo de progreso del día (SVG, estilo anillos de actividad).
+  function anilloDia(dia, size = 74) {
+    const total = dia.piezas.length || 1;
+    const hechas = dia.piezas.filter((x) => x.estado === 'hecha').length;
+    const pct = hechas / total;
+    const r = (size - 10) / 2;
+    const c = 2 * Math.PI * r;
+    return '<div class="anillo-zona" aria-label="' + hechas + ' de ' + total + ' piezas del día">' +
+      '<svg width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '">' +
+      '<circle cx="' + size / 2 + '" cy="' + size / 2 + '" r="' + r + '" fill="none" stroke="var(--superficie-2)" stroke-width="7"/>' +
+      '<circle cx="' + size / 2 + '" cy="' + size / 2 + '" r="' + r + '" fill="none" stroke="var(--verde)" stroke-width="7" ' +
+      'stroke-linecap="round" stroke-dasharray="' + c.toFixed(1) + '" stroke-dashoffset="' + (c * (1 - pct)).toFixed(1) + '" ' +
+      'transform="rotate(-90 ' + size / 2 + ' ' + size / 2 + ')" style="transition: stroke-dashoffset 0.5s ease;"/>' +
+      '</svg>' +
+      '<span class="anillo-num">' + hechas + '/' + total + '<small>DÍA</small></span>' +
+      '</div>';
+  }
+
   // ---------- HOY ----------
   function renderHoy() {
     const dia = Motor.obtenerDia();
@@ -105,14 +123,14 @@ const Hoy = (() => {
     if (dia.cerrado) {
       return '<div class="para-ahora pc-cabeza">' +
         '<div class="ahora-top"><span class="badge">' + Iconos.get('sueno', 24) + '</span>' +
-        '<div><p class="etiqueta">Día cerrado</p><h2>Listo por hoy.</h2></div></div>' +
+        '<div style="flex:1; min-width:0;"><p class="etiqueta">Día cerrado</p><h2>Listo por hoy.</h2></div>' + anilloDia(dia) + '</div>' +
         '<p class="porque">Lo que quedó, quedó bien. Descansá.</p></div>';
     }
     const pieza = Motor.paraAhora(dia, salteadas);
     if (!pieza) {
       return '<div class="para-ahora pc-sistema">' +
         '<div class="ahora-top"><span class="badge">' + Iconos.get('check', 24) + '</span>' +
-        '<div><p class="etiqueta">Para ahora</p><h2>Nada pendiente.</h2></div></div>' +
+        '<div style="flex:1; min-width:0;"><p class="etiqueta">Para ahora</p><h2>Nada pendiente.</h2></div>' + anilloDia(dia) + '</div>' +
         '<p class="porque">Día completo. A la noche te espera el cierre.</p></div>';
     }
     const p = Motor.plantilla(pieza.ref);
@@ -120,8 +138,8 @@ const Hoy = (() => {
     const porque = p.porque || 'Es lo que sigue en tu día.';
     return '<div class="para-ahora pc-' + info.pilar + '">' +
       '<div class="ahora-top"><span class="badge">' + Iconos.get(info.icono, 24) + '</span>' +
-      '<div><p class="etiqueta">Para ahora</p>' +
-      '<h2>' + esc(p.titulo) + '</h2></div></div>' +
+      '<div style="flex:1; min-width:0;"><p class="etiqueta">Para ahora</p>' +
+      '<h2>' + esc(p.titulo) + '</h2></div>' + anilloDia(dia) + '</div>' +
       '<p class="detalle">' + esc(p.meta) + (p.opcional ? ' · opcional' : '') + '</p>' +
       '<p class="porque">' + esc(porque) + '</p>' +
       '<div class="acciones">' +
