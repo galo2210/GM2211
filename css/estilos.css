@@ -38,6 +38,46 @@
   --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
 }
 
+/* ============ TEMA OBSIDIANA (default) — oscuro premium ============
+   Negro cálido + colores de pilar vivos que brillan sobre el fondo.
+   Sin gradientes ni glassmorphism: la riqueza sale del contraste y el color. */
+html[data-tema="obsidiana"] {
+  --fondo: #0C0D10;
+  --superficie: #16181D;
+  --superficie-2: #1F2229;
+  --borde: #2A2E36;
+  --borde-suave: #23262D;
+
+  --texto-1: #F2F3F5;
+  --texto-2: #A8AEB8;
+  --texto-3: #767D88;
+
+  --acento: #D9A954;
+  --acento-texto: #1A1305;
+  --acento-tenue: rgba(217, 169, 84, 0.14);
+
+  --cuerpo: #F0714F;   --cuerpo-tenue: rgba(240, 113, 79, 0.16);
+  --cabeza: #8B9BF4;   --cabeza-tenue: rgba(139, 155, 244, 0.16);
+  --plata: #E3B34F;    --plata-tenue: rgba(227, 179, 79, 0.16);
+  --sistema: #45C4B0;  --sistema-tenue: rgba(69, 196, 176, 0.15);
+  --verde: #4CC38A;    --verde-tenue: rgba(76, 195, 138, 0.15);
+
+  --sombra: 0 1px 2px rgba(0, 0, 0, 0.5), 0 4px 16px rgba(0, 0, 0, 0.35);
+  --sombra-fuerte: 0 2px 8px rgba(0, 0, 0, 0.55), 0 12px 32px rgba(0, 0, 0, 0.45);
+}
+html[data-tema="obsidiana"] nav { background: rgba(12, 13, 16, 0.94); }
+html[data-tema="obsidiana"] .interruptor span { background: #E8EAEE; }
+html[data-tema="obsidiana"] .paso-num { color: #1A0E08; }
+html[data-tema="obsidiana"] .cierre-card.activo { color: #1A1305; }
+html[data-tema="obsidiana"] .cierre-card.activo .titulo { color: #1A1305; }
+html[data-tema="obsidiana"] .cierre-card.activo .meta { color: rgba(26, 19, 5, 0.65); }
+html[data-tema="obsidiana"] .btn-animo.activo,
+html[data-tema="obsidiana"] .chip.activo { color: #1A1305; }
+html[data-tema="obsidiana"] .nav-mas { color: #1A1305; }
+html[data-tema="obsidiana"] .serie-dot.llena { color: #1A0E08; }
+html[data-tema="obsidiana"] .pieza.hecha .estado { color: #06110B; }
+html[data-tema="obsidiana"] .ejercicio.hecho .ej-cabecera .estado { color: #06110B; }
+
 * { box-sizing: border-box; }
 
 html, body {
@@ -897,6 +937,14 @@ nav {
   cursor: pointer;
 }
 .nav-item.activo { color: var(--acento); }
+.nav-item.activo::after {
+  content: "";
+  width: 18px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--acento);
+  margin-top: 1px;
+}
 .nav-item:focus-visible { outline: 2px solid var(--acento); outline-offset: -2px; }
 .nav-mas {
   width: 50px;
@@ -1186,6 +1234,32 @@ nav {
   background: var(--pc, var(--cabeza));
   width: 22px;
   border-radius: 999px;
+}
+
+/* ---------- Anillo de progreso del día ---------- */
+.anillo-zona {
+  flex: none;
+  display: grid;
+  place-items: center;
+  position: relative;
+}
+.anillo-zona svg { display: block; }
+.anillo-zona .anillo-num {
+  position: absolute;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--texto-1);
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.anillo-zona .anillo-num small {
+  display: block;
+  font-size: 8.5px;
+  font-weight: 600;
+  color: var(--texto-3);
+  letter-spacing: 0.08em;
 }
 
 /* ---------- Aprender: la idea + hoy probá ---------- */
