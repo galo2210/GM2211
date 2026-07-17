@@ -1188,6 +1188,49 @@ nav {
   border-radius: 999px;
 }
 
+/* ---------- Aprender: la idea + hoy probá ---------- */
+.ap-clave, .ap-accion {
+  display: flex;
+  gap: 13px;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: var(--sombra);
+}
+.ap-clave {
+  background: var(--pct, var(--acento-tenue));
+  border: 1px solid transparent;
+}
+.ap-accion {
+  background: var(--superficie);
+  border: 1.5px dashed var(--pc, var(--acento));
+}
+.ap-clave .ic, .ap-accion .ic {
+  flex: none;
+  width: 36px; height: 36px;
+  border-radius: 11px;
+  display: grid; place-items: center;
+  color: var(--pc, var(--acento));
+  background: var(--superficie);
+}
+.ap-accion .ic { background: var(--pct, var(--acento-tenue)); }
+.ap-clave h4, .ap-accion h4 {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--pc, var(--acento));
+  margin: 0 0 4px;
+}
+.ap-clave p {
+  font-family: var(--display);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--texto-1);
+  line-height: 1.35;
+  margin: 0;
+}
+.ap-accion p { font-size: 14.5px; color: var(--texto-1); line-height: 1.5; margin: 0; }
+
 /* ---------- Lista de rutinas (movilidad) ---------- */
 .rutina-card {
   display: flex;
