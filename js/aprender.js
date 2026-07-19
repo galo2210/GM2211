@@ -17,6 +17,7 @@ const Aprender = (() => {
   }
 
   let piezaAbierta = null; // null = la de hoy
+  let filtroPilar = null;
 
   function abrir(id) { piezaAbierta = id; }
 
@@ -58,9 +59,18 @@ const Aprender = (() => {
       html += '<button class="btn btn-secundario" id="btn-aprender-hoy" style="width:100%;">Ver la de hoy</button>';
     }
 
-    // Archivo agrupado por pilar
+    // Archivo agrupado por pilar, con filtro
     const ICONO_PILAR = { 'Cuerpo': 'cuerpo', 'Cabeza': 'cabeza', 'Plata': 'plata', 'Sistema': 'sistema' };
+    html += '<p class="filtro-caption" style="margin-top:22px;">Archivo · filtrar por pilar</p><div class="chips">' +
+      '<button class="chip' + (filtroPilar === null ? ' activo' : '') + '" data-filtro-pilar="">Todas · ' + APRENDER_PIEZAS.length + '</button>';
     ['Cuerpo', 'Cabeza', 'Plata', 'Sistema'].forEach((pilar) => {
+      const n = APRENDER_PIEZAS.filter((p) => p.pilar === pilar).length;
+      html += '<button class="chip' + (filtroPilar === pilar ? ' activo' : '') + '" data-filtro-pilar="' + pilar + '">' + pilar + ' · ' + n + '</button>';
+    });
+    html += '</div>';
+
+    ['Cuerpo', 'Cabeza', 'Plata', 'Sistema'].forEach((pilar) => {
+      if (filtroPilar && filtroPilar !== pilar) return;
       const delPilar = APRENDER_PIEZAS.filter((p) => p.pilar === pilar);
       if (delPilar.length === 0) return;
       html += '<div class="pilar-cabecera pc-' + pilarClase(pilar) + '" style="margin-top:22px;">' +
@@ -94,6 +104,9 @@ const Aprender = (() => {
     }
     cont.querySelectorAll('[data-pieza]').forEach((b) => {
       b.addEventListener('click', () => { piezaAbierta = b.dataset.pieza; render(); window.scrollTo(0, 0); });
+    });
+    cont.querySelectorAll('[data-filtro-pilar]').forEach((b) => {
+      b.addEventListener('click', () => { filtroPilar = b.dataset.filtroPilar || null; render(); });
     });
   }
 

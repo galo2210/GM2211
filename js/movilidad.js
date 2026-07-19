@@ -7,6 +7,7 @@ const Movilidad = (() => {
   const CATEGORIAS = ['Mañana', 'Pausas oficina', 'Pre-gym', 'Noche', 'Cara', 'Casa'];
 
   let filtroProblema = null;
+  let filtroCategoria = null;
   let rutinaActual = null;   // objeto de RUTINAS_MOV
   let pasoIdx = 0;
   let restante = 0;
@@ -24,15 +25,25 @@ const Movilidad = (() => {
     const cont = document.getElementById('movilidad-contenido');
     let html = '';
 
-    html += '<div class="chips">';
+    // Filtro 1: momento del día
+    html += '<p class="filtro-caption">Momento</p><div class="chips">' +
+      '<button class="chip' + (filtroCategoria === null ? ' activo' : '') + '" data-categoria="">Todas</button>';
+    CATEGORIAS.forEach((c) => {
+      html += '<button class="chip' + (filtroCategoria === c ? ' activo' : '') + '" data-categoria="' + c + '">' + esc(c) + '</button>';
+    });
+    html += '</div>';
+
+    // Filtro 2: por problema
+    html += '<p class="filtro-caption">Por problema</p><div class="chips">';
     PROBLEMAS.forEach((p) => {
       html += '<button class="chip' + (filtroProblema === p ? ' activo' : '') + '" data-problema="' + p + '">' + esc(p) + '</button>';
     });
     html += '</div>';
 
-    const visibles = filtroProblema
+    let visibles = filtroProblema
       ? RUTINAS_MOV.filter((r) => r.problemas.includes(filtroProblema))
       : RUTINAS_MOV;
+    if (filtroCategoria) visibles = visibles.filter((r) => r.categoria === filtroCategoria);
 
     const ICONO_CAT = {
       'Mañana': 'energia', 'Pausas oficina': 'reloj', 'Pre-gym': 'gym',
@@ -66,6 +77,12 @@ const Movilidad = (() => {
     cont.querySelectorAll('[data-problema]').forEach((b) => {
       b.addEventListener('click', () => {
         filtroProblema = filtroProblema === b.dataset.problema ? null : b.dataset.problema;
+        renderLista();
+      });
+    });
+    cont.querySelectorAll('[data-categoria]').forEach((b) => {
+      b.addEventListener('click', () => {
+        filtroCategoria = b.dataset.categoria || null;
         renderLista();
       });
     });
