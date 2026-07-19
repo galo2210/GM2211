@@ -56,61 +56,52 @@ const Biblioteca = (() => {
     ).slice(0, 12);
   }
 
-  // Un tile del hub.
-  function tile(pilar, icono, titulo, sub, destino, ancho) {
+  // Un tile del hub: número grande + título + detalle único.
+  function tile(pilar, icono, titulo, dato, sub, destino, ancho) {
     return '<button class="tile pc-' + pilar + (ancho ? ' ancho' : '') + '" data-ir="' + destino + '">' +
       '<span class="ic">' + Iconos.get(icono, 22) + '</span>' +
-      '<span class="tile-txt"><span class="t-titulo">' + esc(titulo) + '</span>' +
+      '<span class="tile-txt">' +
+      '<span class="t-titulo">' + esc(titulo) + (dato ? ' <span class="t-dato">' + esc(dato) + '</span>' : '') + '</span>' +
       '<span class="t-sub">' + esc(sub) + '</span></span>' +
       '</button>';
   }
 
-  function grupo(pilar, icono, nombre, sub, tilesHtml) {
-    return '<section class="pilar-grupo pc-' + pilar + '">' +
-      '<div class="pilar-cabecera"><span class="ic">' + Iconos.get(icono, 20) + '</span>' +
+  function zona(num, nombre, sub, tilesHtml) {
+    return '<section class="zona">' +
+      '<div class="zona-cabecera"><span class="zona-num">' + num + '</span>' +
       '<div><h3>' + nombre + '</h3><p class="sub">' + sub + '</p></div></div>' +
       '<div class="tiles">' + tilesHtml + '</div></section>';
   }
 
   function render() {
     const cont = document.getElementById('biblioteca-contenido');
-    const totalGym = Object.keys(GYM_SESIONES).length;
+    const totalGym = Object.keys(GYM_SESIONES).reduce((s, ref) => s + GYM_SESIONES[ref].ejercicios.length, 0);
+    const totalRecetas = Object.keys(COMIDAS).reduce((s, ref) => s + COMIDAS[ref].recetas.length, 0);
     let html = '';
 
     // Buscador único
     html += '<input class="campo-busqueda" type="search" id="biblio-buscar" placeholder="Buscar en todo: ejercicio, receta, rutina...">' +
       '<div id="biblio-resultados" style="display:flex; flex-direction:column; gap:6px;"></div>';
 
-    // CUERPO
-    html += grupo('cuerpo', 'cuerpo', 'Cuerpo', 'Entrenar, comer, moverse',
-      tile('cuerpo', 'gym', 'Gym', totalGym + ' sesiones con técnica', 'gym') +
-      tile('cuerpo', 'comida', 'Comida', 'Recetas con cantidades', 'comida') +
-      tile('cuerpo', 'movilidad', 'Movilidad', RUTINAS_MOV.length + ' rutinas guiadas', 'movilidad') +
-      tile('cuerpo', 'compras', 'Compras', 'Listas y presupuesto', 'compras'));
+    // 01 · TU PLAN — el conocimiento, para consultar
+    html += zona('01', 'Tu plan', 'El conocimiento de tus 4 pilares, para consultar cuando quieras',
+      tile('cuerpo', 'gym', 'Gym', totalGym, 'Ejercicios con técnica completa: montaje, pasos, errores y dudas', 'gym') +
+      tile('cuerpo', 'comida', 'Comida', totalRecetas, 'Recetas con tiempos, tips de cocina y sustituciones', 'comida') +
+      tile('cuerpo', 'movilidad', 'Movilidad', RUTINAS_MOV.length, 'Rutinas guiadas por momento del día y por problema', 'movilidad') +
+      tile('cabeza', 'respirar', 'Respirar', RESPIRACIONES.length + MEDITACIONES.length, 'Técnicas con timer en vivo y meditaciones guiadas', 'respirar') +
+      tile('cabeza', 'aprender', 'Aprender', APRENDER_PIEZAS.length, 'Una pieza por día, con su idea y su acción', 'aprender') +
+      tile('cuerpo', 'suplementos', 'Suplementos', SUPLEMENTOS.length, 'Los tuyos, con timing exacto y porqué', 'suplementos'));
 
-    // Suplementos como tarjeta de referencia dentro de Cuerpo
-    html += '<div class="tarjeta pc-cuerpo" style="margin-top:10px;"><h2>Suplementos</h2>';
-    SUPLEMENTOS.forEach((s) => {
-      html += '<div class="fila-dato"><span style="max-width:56%;"><strong>' + esc(s.nombre) + '</strong><br>' +
-        '<span style="font-size:12.5px; color:var(--texto-3);">' + esc(s.porque) + '</span></span>' +
-        '<span class="valor" style="max-width:42%; color:var(--cuerpo);">' + esc(s.timing) + '</span></div>';
-    });
-    html += '</div>';
+    // 02 · HERRAMIENTAS — lo que se usa, no se lee
+    html += zona('02', 'Herramientas', 'Lo que se opera: plata, compras y foco',
+      tile('plata', 'plata', 'Plata', null, 'Fondo Brasil con barra, gastos del mes, fijos e ingresos', 'plata') +
+      tile('plata', 'compras', 'Compras', null, 'Listas que se arman desde recetas, con presupuesto', 'compras') +
+      tile('cabeza', 'foco', 'Foco', null, 'El timer de una sola cosa: 25, 35 o 50 minutos', 'foco', true));
 
-    // CABEZA
-    html += grupo('cabeza', 'cabeza', 'Cabeza', 'Foco, calma, aprender',
-      tile('cabeza', 'respirar', 'Respirar', RESPIRACIONES.length + ' técnicas + ' + MEDITACIONES.length + ' meditaciones', 'respirar') +
-      tile('cabeza', 'aprender', 'Aprender', APRENDER_PIEZAS.length + ' piezas · 1 por día', 'aprender') +
-      tile('cabeza', 'foco', 'Foco', 'Bloque de una sola cosa', 'foco'));
-
-    // PLATA
-    html += grupo('plata', 'plata', 'Plata', 'Fondo Brasil y gastos',
-      tile('plata', 'plata', 'Plata', 'Fondo Brasil · gastos · fijos · ingresos', 'plata', true));
-
-    // SISTEMA
-    html += grupo('sistema', 'sistema', 'Sistema', 'Tu rutina y tus datos',
-      tile('sistema', 'rutina', 'Mi rutina', 'Prender, apagar, crear', 'rutina') +
-      tile('sistema', 'ajustes', 'Ajustes', 'Datos, backup, versión', 'ajustes'));
+    // 03 · TU SISTEMA — configuración y datos
+    html += zona('03', 'Tu sistema', 'La máquina por dentro: editala a tu medida',
+      tile('sistema', 'rutina', 'Mi rutina', null, 'Prender, apagar y crear las piezas de tu día', 'rutina') +
+      tile('sistema', 'ajustes', 'Ajustes', null, 'Apariencia, el (+), backup y versión', 'ajustes'));
 
     cont.innerHTML = html;
 
@@ -144,5 +135,20 @@ const Biblioteca = (() => {
     });
   }
 
-  return { render };
+  // Pantalla propia de Suplementos: una tarjeta por suplemento.
+  function renderSuplementos() {
+    const cont = document.getElementById('suplementos-contenido');
+    let html = '<div class="tarjeta vacio"><p>Tus 6, con su momento exacto. La creatina y el magnesio ya viven en tu rutina diaria; el resto es referencia.</p></div>';
+    SUPLEMENTOS.forEach((s) => {
+      html += '<div class="tarjeta pc-cuerpo" style="display:flex; gap:13px; align-items:flex-start;">' +
+        '<span style="flex:none; width:40px; height:40px; border-radius:12px; display:grid; place-items:center; color:var(--cuerpo); background:var(--cuerpo-tenue);">' + Iconos.get('suplementos', 20) + '</span>' +
+        '<div style="flex:1;"><p style="font-size:15.5px; font-weight:600; margin:0;">' + esc(s.nombre) + '</p>' +
+        '<span class="macro-chip" style="display:inline-block; margin:6px 0 8px;">' + esc(s.timing) + '</span>' +
+        '<p style="font-size:14px; color:var(--texto-2); line-height:1.5; margin:0;">' + esc(s.porque) + '</p></div>' +
+        '</div>';
+    });
+    cont.innerHTML = html;
+  }
+
+  return { render, renderSuplementos };
 })();
