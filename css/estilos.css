@@ -707,6 +707,30 @@ input, select, textarea { font-size: 16px; font-family: var(--sans); }
 .alimento .datos { font-family: var(--mono); font-size: 11.5px; color: var(--cuerpo); white-space: nowrap; }
 .alimento:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
 
+/* ---------- Gastos por categoría (barras horizontales) ---------- */
+.cat-fila { margin: 0 0 13px; }
+.cat-fila:last-child { margin-bottom: 0; }
+.cat-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 5px;
+}
+.cat-info span { font-size: 14px; font-weight: 600; color: var(--texto-1); }
+.cat-info .valor { font-family: var(--mono); font-size: 12px; font-weight: 500; color: var(--texto-2); }
+.cat-barra {
+  height: 9px;
+  border-radius: 999px;
+  background: var(--superficie-2);
+  overflow: hidden;
+}
+.cat-barra div {
+  height: 100%;
+  background: var(--plata);
+  border-radius: 999px;
+  transition: width 0.35s ease;
+}
+
 /* ---------- Barra de progreso ---------- */
 .barra {
   height: 12px;

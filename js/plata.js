@@ -1,11 +1,14 @@
-// NORTE · PLATA — Fondo Brasil (barra siempre visible), gastos del mes por categoría,
-// fijos editables e ingresos. El negocio real vive en otro proyecto: acá solo su bloque y sus números.
+// NORTE · PLATA v2 — tablero de plata (16/07/2026).
+// Orden: Fondo Brasil (hero con aporte inline) → balance del mes en 4 stats →
+// gastos por categoría en barras → fijos → movimientos unificados. Sin prompt(): todo inline.
 
 const Plata = (() => {
 
   const BRASIL_INICIAL = 1000;   // USD con los que arranca el fondo (SISTEMA.md §6.1)
   const META_DEFECTO = 3500;
-  const FECHA_VIAJE = new Date(2027, 0, 15); // referencia enero 2027
+  const FECHA_VIAJE = new Date(2027, 0, 15);
+
+  let editandoMeta = false;
 
   function esc(t) {
     const d = document.createElement('div');
@@ -16,8 +19,20 @@ const Plata = (() => {
   function pesos(n) { return '$' + Number(n).toLocaleString('es-AR'); }
   function usd(n) { return 'USD ' + Number(n).toLocaleString('es-AR'); }
 
-  function mesActual(fechaIso) {
-    return Motor.fechaISO(new Date(fechaIso)).slice(0, 7) === Motor.fechaISO().slice(0, 7);
+  function mesDe(fechaIso) { return Motor.fechaISO(new Date(fechaIso)).slice(0, 7); }
+  function mesActualStr() { return Motor.fechaISO().slice(0, 7); }
+  function mesAnteriorStr() {
+    const d = new Date();
+    d.setMonth(d.getMonth() - 1);
+    return Motor.fechaISO(d).slice(0, 7);
+  }
+
+  function stat(label, valor, sub, color) {
+    return '<div class="stat pc-plata">' +
+      '<p class="s-label">' + Iconos.get('plata', 13) + label + '</p>' +
+      '<p class="s-valor"' + (color ? ' style="color:' + color + ';"' : '') + '>' + valor + '</p>' +
+      (sub ? '<p class="s-sub">' + sub + '</p>' : '') +
+      '</div>';
   }
 
   function render() {
@@ -31,118 +46,168 @@ const Plata = (() => {
     const porMes = Math.ceil(falta / mesesRestantes);
 
     const registros = Store.leer('registros', []);
-    const gastosMes = registros.filter((r) => r.tipo === 'gasto' && r.valor && mesActual(r.fecha));
-    const ingresosMes = registros.filter((r) => r.tipo === 'ingreso' && r.valor && mesActual(r.fecha));
+    const mesAct = mesActualStr();
+    const mesAnt = mesAnteriorStr();
+    const gastosMes = registros.filter((r) => r.tipo === 'gasto' && r.valor && mesDe(r.fecha) === mesAct);
+    const gastosMesAnt = registros.filter((r) => r.tipo === 'gasto' && r.valor && mesDe(r.fecha) === mesAnt);
+    const ingresosMes = registros.filter((r) => r.tipo === 'ingreso' && r.valor && mesDe(r.fecha) === mesAct);
     const fijos = Store.leer('gastos-fijos', []);
+
+    const totalGastos = gastosMes.reduce((s, r) => s + Number(r.valor.monto || 0), 0);
+    const totalGastosAnt = gastosMesAnt.reduce((s, r) => s + Number(r.valor.monto || 0), 0);
+    const totalIngresos = ingresosMes.reduce((s, r) => s + Number(r.valor.monto || 0), 0);
+    const totalFijos = fijos.reduce((s, f) => s + f.monto, 0);
+    const balance = totalIngresos - totalGastos - totalFijos;
+    const diaDelMes = new Date().getDate();
+    const ritmoDiario = diaDelMes > 0 ? Math.round(totalGastos / diaDelMes) : 0;
+    const proyeccion = ritmoDiario * 30;
 
     let html = '';
 
-    // ---------- Fondo Brasil ----------
+    // ---------- 01 · Fondo Brasil ----------
     html += '<div class="para-ahora pc-plata">' +
-      '<div class="ahora-top"><span class="badge">' + Iconos.get('plata', 24) + '</span>' +
-      '<div><p class="etiqueta">Fondo Brasil · enero 2027</p>' +
-      '<h2>' + usd(aportado) + ' <span style="font-size:15px; color:var(--texto-3); font-weight:400;">de ' + usd(meta) + '</span></h2></div></div>' +
+      '<div class="ahora-top"><span class="badge">' + Iconos.get('energia', 24) + '</span>' +
+      '<div style="flex:1;"><p class="etiqueta">Fondo Brasil · enero 2027</p>' +
+      '<h2>' + usd(aportado) + ' <span style="font-size:14px; color:var(--texto-3); font-weight:400;">de ' + usd(meta) + '</span></h2></div>' +
+      '<span style="font-family:var(--mono); font-size:22px; font-weight:700; color:var(--plata);">' + pct + '%</span></div>' +
       '<div class="barra"><div style="width:' + pct + '%;"></div></div>' +
-      '<p class="detalle">' + pct + '% · faltan ' + usd(falta) + (falta > 0 ? ' ≈ ' + usd(porMes) + '/mes por ' + mesesRestantes + ' meses' : ' · ¡LLEGASTE!') + '</p>' +
-      '<p class="porque">El aporte es flexible: cargá lo que puedas cada mes y la cuenta se rehace sola. Sin drama si un mes es menos.</p>' +
-      '<div class="acciones">' +
-      '<button class="btn btn-primario" id="btn-aporte">Cargar aporte</button>' +
-      '<button class="btn btn-secundario" id="btn-meta">Cambiar meta</button>' +
-      '</div></div>';
+      '<p class="detalle">' + (falta > 0
+        ? 'Faltan ' + usd(falta) + ' · ritmo sugerido: <strong>' + usd(porMes) + '/mes</strong> por ' + mesesRestantes + ' meses'
+        : '¡LLEGASTE! Brasil pagado.') + '</p>' +
+      '<div class="registro-fila" style="border:none; padding:12px 0 0;">' +
+      '<input type="text" inputmode="numeric" id="aporte-monto" placeholder="Aporte de este mes (USD)">' +
+      '<button class="btn btn-primario" id="btn-aporte">Sumar</button>' +
+      '</div>' +
+      '<button class="btn-volver" id="btn-meta" style="padding:8px 0 0;">' + (editandoMeta ? 'Cancelar' : 'Cambiar meta') + '</button>' +
+      (editandoMeta
+        ? '<div class="registro-fila" style="border:none; padding:4px 0 0;">' +
+          '<input type="text" inputmode="numeric" id="meta-monto" placeholder="Nueva meta (USD)" value="' + meta + '">' +
+          '<button class="btn btn-secundario" id="btn-meta-guardar">Guardar</button></div>'
+        : '') +
+      '</div>';
 
-    if (aportes.length > 0) {
-      html += '<div class="tarjeta">';
-      aportes.slice(-5).reverse().forEach((a) => {
-        const f = new Date(a.fecha);
-        html += '<div class="fila-dato"><span>' + String(f.getDate()).padStart(2, '0') + '/' + String(f.getMonth() + 1).padStart(2, '0') + ' · Aporte</span>' +
-          '<span class="valor">' + usd(a.monto) + '</span></div>';
-      });
-      html += '</div>';
-    }
+    // ---------- 02 · El mes en 4 números ----------
+    html += '<p class="filtro-caption" style="margin-top:18px;">Tu mes en números</p>' +
+      '<div class="stats">' +
+      stat('Balance del mes', (balance >= 0 ? '+' : '−') + pesos(Math.abs(balance)).slice(1),
+        'ingresos − gastos − fijos', balance >= 0 ? 'var(--verde)' : 'var(--cuerpo)') +
+      stat('Gastado', pesos(totalGastos),
+        totalGastosAnt > 0
+          ? (totalGastos <= totalGastosAnt ? '−' : '+') + Math.abs(Math.round((totalGastos / totalGastosAnt - 1) * 100)) + '% vs mes pasado'
+          : gastosMes.length + ' movimientos') +
+      stat('Ingresos', pesos(totalIngresos), totalIngresos > 0 ? '' : 'se cargan con el (+)') +
+      stat('Ritmo diario', pesos(ritmoDiario), totalGastos > 0 ? '≈ ' + pesos(proyeccion) + ' al fin de mes' : 'gasto promedio por día') +
+      '</div>';
 
-    // ---------- Gastos del mes ----------
-    html += '<div class="bloque-cabecera" style="margin-top:16px;"><h3>Gastos del mes</h3></div>';
+    // ---------- 03 · Gastos por categoría (barras) ----------
+    html += '<p class="filtro-caption" style="margin-top:18px;">Gastos por categoría</p>';
     if (gastosMes.length === 0) {
-      html += '<div class="tarjeta vacio"><p>Sin gastos cargados este mes. Entran por el (+) o al terminar una compra.</p></div>';
+      html += '<div class="tarjeta vacio"><p>Cero gastos cargados este mes. Entran solos al terminar una compra, o a mano por el (+) → Gasto.</p></div>';
     } else {
       const porCategoria = {};
       gastosMes.forEach((r) => {
         const cat = r.valor.categoria || 'Otro';
         porCategoria[cat] = (porCategoria[cat] || 0) + Number(r.valor.monto || 0);
       });
-      const total = Object.values(porCategoria).reduce((s, v) => s + v, 0);
+      const maximo = Math.max(...Object.values(porCategoria));
       html += '<div class="tarjeta">';
       Object.entries(porCategoria).sort((a, b) => b[1] - a[1]).forEach(([cat, monto]) => {
-        html += '<div class="fila-dato"><span>' + esc(cat) + '</span><span class="valor">' + pesos(monto) + '</span></div>';
+        const ancho = Math.max(4, Math.round((monto / maximo) * 100));
+        const pctCat = Math.round((monto / totalGastos) * 100);
+        html += '<div class="cat-fila">' +
+          '<div class="cat-info"><span>' + esc(cat) + '</span>' +
+          '<span class="valor">' + pesos(monto) + ' · ' + pctCat + '%</span></div>' +
+          '<div class="cat-barra"><div style="width:' + ancho + '%;"></div></div>' +
+          '</div>';
       });
-      html += '<div class="fila-dato"><span><strong>Total</strong></span><span class="valor"><strong>' + pesos(total) + '</strong></span></div>' +
-        '</div>';
+      html += '</div>';
     }
 
-    // ---------- Fijos ----------
-    const totalFijos = fijos.reduce((s, f) => s + f.monto, 0);
-    html += '<div class="bloque-cabecera" style="margin-top:16px;"><h3>Gastos fijos</h3>' +
-      '<span class="conteo">' + pesos(totalFijos) + '/mes</span></div>';
+    // ---------- 04 · Fijos ----------
+    html += '<p class="filtro-caption" style="margin-top:18px;">Fijos mensuales · ' + pesos(totalFijos) + '</p>';
+    html += '<div class="tarjeta">';
     if (fijos.length === 0) {
-      html += '<div class="tarjeta vacio"><p>Cargá alquiler, expensas, servicios: lo que sale sí o sí todos los meses.</p></div>';
+      html += '<p style="margin-bottom:10px;">Alquiler, expensas, servicios: lo que sale sí o sí. Se cargan una vez y entran al balance solos.</p>';
     } else {
-      html += '<div class="tarjeta">';
       fijos.forEach((f) => {
         html += '<div class="fila-dato"><span>' + esc(f.nombre) + '</span>' +
           '<span style="display:flex; align-items:center; gap:8px;"><span class="valor">' + pesos(f.monto) + '</span>' +
           '<button class="btn-borrar" data-borrar-fijo="' + f.id + '" aria-label="Borrar fijo">&#215;</button></span></div>';
       });
+    }
+    html += '<div class="registro-fila" style="border:none;">' +
+      '<input type="text" id="fijo-nombre" placeholder="Nombre (ej: Expensas)">' +
+      '<input type="text" inputmode="numeric" id="fijo-monto" placeholder="$" class="precio-input">' +
+      '<button class="btn btn-secundario" id="btn-agregar-fijo">Sumar</button></div>' +
+      '</div>';
+
+    // ---------- 05 · Movimientos (todo junto, cronológico) ----------
+    const movimientos = registros
+      .filter((r) => (r.tipo === 'gasto' || r.tipo === 'ingreso') && r.valor)
+      .map((r) => ({ fecha: r.fecha, tipo: r.tipo, monto: r.valor.monto, detalle: r.tipo === 'gasto' ? r.valor.categoria : r.valor.origen }))
+      .concat(aportes.map((a) => ({ fecha: a.fecha, tipo: 'aporte', monto: a.monto, detalle: 'Fondo Brasil' })))
+      .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
+      .slice(0, 8);
+
+    html += '<p class="filtro-caption" style="margin-top:18px;">Últimos movimientos</p>';
+    if (movimientos.length === 0) {
+      html += '<div class="tarjeta vacio"><p>Acá va a aparecer cada gasto, ingreso y aporte, en orden. El (+) alimenta todo.</p></div>';
+    } else {
+      html += '<div class="tarjeta">';
+      movimientos.forEach((m) => {
+        const f = new Date(m.fecha);
+        const fecha = String(f.getDate()).padStart(2, '0') + '/' + String(f.getMonth() + 1).padStart(2, '0');
+        const conf = m.tipo === 'ingreso'
+          ? { icono: 'progreso', color: 'var(--verde)', signo: '+', montoTexto: pesos(m.monto) }
+          : m.tipo === 'aporte'
+            ? { icono: 'energia', color: 'var(--plata)', signo: '★', montoTexto: usd(m.monto) }
+            : { icono: 'compras', color: 'var(--texto-2)', signo: '−', montoTexto: pesos(m.monto) };
+        html += '<div class="fila-dato">' +
+          '<span style="display:flex; align-items:center; gap:10px;">' +
+          '<span style="color:' + conf.color + '; display:grid; place-items:center;">' + Iconos.get(conf.icono, 16) + '</span>' +
+          '<span>' + fecha + ' · ' + esc(m.detalle || '') + '</span></span>' +
+          '<span class="valor" style="color:' + conf.color + '; font-weight:700;">' + conf.signo + ' ' + conf.montoTexto + '</span></div>';
+      });
       html += '</div>';
     }
-    html += '<div class="tarjeta"><div class="registro-fila">' +
-      '<input type="text" id="fijo-nombre" placeholder="Nombre (ej: Expensas)">' +
-      '<input type="text" inputmode="numeric" id="fijo-monto" placeholder="$" class="precio-input" style="width:90px;">' +
-      '<button class="btn btn-secundario" id="btn-agregar-fijo">Sumar</button></div></div>';
-
-    // ---------- Ingresos del mes ----------
-    html += '<div class="bloque-cabecera" style="margin-top:16px;"><h3>Ingresos del mes</h3></div>';
-    if (ingresosMes.length === 0) {
-      html += '<div class="tarjeta vacio"><p>Se cargan por el (+) → Ingreso. Cuando el negocio arranque, acá se va a notar.</p></div>';
-    } else {
-      const totalIng = ingresosMes.reduce((s, r) => s + Number(r.valor.monto || 0), 0);
-      html += '<div class="tarjeta">';
-      ingresosMes.slice(-5).reverse().forEach((r) => {
-        html += '<div class="fila-dato"><span>' + esc(r.valor.origen || 'Ingreso') + '</span>' +
-          '<span class="valor">' + pesos(r.valor.monto) + '</span></div>';
-      });
-      html += '<div class="fila-dato"><span><strong>Total</strong></span><span class="valor"><strong>' + pesos(totalIng) + '</strong></span></div></div>';
-    }
-
-    // ---------- Negocio ----------
-    html += '<div class="tarjeta vacio" style="margin-top:16px;"><p><strong>Negocio.</strong> El proyecto se trabaja aparte; acá viven sus 2 bloques semanales de foco (sábado y domingo en HOY, editables en Mi rutina) y sus ingresos cuando lleguen.</p></div>';
 
     cont.innerHTML = html;
+    conectar(cont, meta);
+  }
 
+  function conectar(cont, meta) {
     document.getElementById('btn-aporte').addEventListener('click', () => {
-      const v = prompt('¿Cuánto aportás al fondo? (USD)');
-      if (v === null) return;
-      const n = parseInt(String(v).replace(/[^\d]/g, ''), 10);
-      if (!n || n < 1) return;
-      const aportes2 = Store.leer('brasil-aportes', []);
-      aportes2.push({ id: Store.nuevoId(), monto: n, fecha: new Date().toISOString() });
-      Store.guardar('brasil-aportes', aportes2);
+      const input = document.getElementById('aporte-monto');
+      const n = parseInt(String(input.value).replace(/[^\d]/g, ''), 10);
+      if (!n || n < 1) { input.focus(); return; }
+      const aportes = Store.leer('brasil-aportes', []);
+      aportes.push({ id: Store.nuevoId(), monto: n, fecha: new Date().toISOString() });
+      Store.guardar('brasil-aportes', aportes);
       render();
     });
 
     document.getElementById('btn-meta').addEventListener('click', () => {
-      const v = prompt('Meta del fondo en USD:', String(meta));
-      if (v === null) return;
-      const n = parseInt(String(v).replace(/[^\d]/g, ''), 10);
-      if (n > 0) { Store.guardar('brasil-meta', n); render(); }
+      editandoMeta = !editandoMeta;
+      render();
     });
+
+    const btnMetaGuardar = document.getElementById('btn-meta-guardar');
+    if (btnMetaGuardar) {
+      btnMetaGuardar.addEventListener('click', () => {
+        const n = parseInt(String(document.getElementById('meta-monto').value).replace(/[^\d]/g, ''), 10);
+        if (n > 0) Store.guardar('brasil-meta', n);
+        editandoMeta = false;
+        render();
+      });
+    }
 
     document.getElementById('btn-agregar-fijo').addEventListener('click', () => {
       const nombre = String(document.getElementById('fijo-nombre').value).trim();
       const monto = parseInt(String(document.getElementById('fijo-monto').value).replace(/[^\d]/g, ''), 10);
-      if (!nombre || !monto) { alert('Nombre y monto.'); return; }
-      const fijos2 = Store.leer('gastos-fijos', []);
-      fijos2.push({ id: Store.nuevoId(), nombre, monto });
-      Store.guardar('gastos-fijos', fijos2);
+      if (!nombre || !monto) return;
+      const fijos = Store.leer('gastos-fijos', []);
+      fijos.push({ id: Store.nuevoId(), nombre, monto });
+      Store.guardar('gastos-fijos', fijos);
       render();
     });
 
