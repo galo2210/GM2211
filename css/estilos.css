@@ -707,6 +707,93 @@ input, select, textarea { font-size: 16px; font-family: var(--sans); }
 .alimento .datos { font-family: var(--mono); font-size: 11.5px; color: var(--cuerpo); white-space: nowrap; }
 .alimento:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
 
+/* ---------- Plata definitiva: banco + gráfico ---------- */
+.p-hero { text-align: center; padding: 14px 0 4px; }
+.p-hero-lbl {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--texto-3);
+  margin: 0 0 9px;
+}
+.p-hero-num {
+  font-family: var(--mono);
+  font-size: 42px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.p-hero-sub {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--texto-3);
+  margin: 9px 0 0;
+  font-variant-numeric: tabular-nums;
+}
+.qa-fila { display: flex; justify-content: center; gap: 30px; margin: 20px 0 22px; }
+.qa {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: var(--texto-2);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.qa span {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  display: grid;
+  place-items: center;
+  color: var(--acento);
+  box-shadow: var(--sombra);
+  transition: transform 0.08s ease;
+}
+.qa:active span { transform: scale(0.93); }
+.qa:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; border-radius: 12px; }
+.p-brasil { position: relative; overflow: hidden; }
+.p-brasil::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: var(--plata);
+}
+.p-k {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--plata);
+  margin: 0 0 4px;
+}
+.p-v { font-size: 18px; font-weight: 700; margin: 0; font-variant-numeric: tabular-nums; }
+.p-v span { color: var(--texto-3); font-weight: 400; font-size: 14px; }
+.p-s { font-family: var(--mono); font-size: 11.5px; color: var(--texto-3); margin: 4px 0 0; }
+.ley { display: flex; align-items: center; gap: 8px; font-size: 13.5px; margin-bottom: 9px; }
+.ley:last-child { margin-bottom: 0; }
+.ley i { width: 10px; height: 10px; border-radius: 3.5px; flex: none; }
+.ley .m {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--texto-2);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.ley .m small { color: var(--texto-3); font-size: 10px; }
+
 /* ---------- Plata: hero, balance y movimientos ---------- */
 .pill-pct {
   flex: none;
