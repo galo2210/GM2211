@@ -252,6 +252,7 @@ const Registro = (() => {
         cerrarHoja();
         if (location.hash === '#/hoy' || location.hash === '') Hoy.renderHoy();
         if (location.hash === '#/progreso') Progreso.render();
+        if (location.hash === '#/plata') Plata.render();
       });
     }
   }

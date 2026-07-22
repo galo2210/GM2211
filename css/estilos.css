@@ -707,6 +707,69 @@ input, select, textarea { font-size: 16px; font-family: var(--sans); }
 .alimento .datos { font-family: var(--mono); font-size: 11.5px; color: var(--cuerpo); white-space: nowrap; }
 .alimento:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
 
+/* ---------- Plata: hero, balance y movimientos ---------- */
+.pill-pct {
+  flex: none;
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--plata);
+  background: var(--plata-tenue);
+  border-radius: 999px;
+  padding: 7px 13px;
+}
+.hero-monto {
+  font-family: var(--display);
+  font-size: 36px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--texto-1);
+  margin: 2px 0 0;
+  font-variant-numeric: tabular-nums;
+}
+.hero-monto small {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--plata);
+  vertical-align: 6px;
+  letter-spacing: 0.04em;
+}
+.hero-de { font-family: var(--sans); font-size: 14px; font-weight: 400; color: var(--texto-3); }
+.barra.hitos { position: relative; }
+.barra.hitos .tick {
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 2px;
+  background: var(--fondo);
+}
+.balance-hero { width: 100%; }
+.formula { display: flex; gap: 14px; margin-top: 10px; flex-wrap: wrap; }
+.f-chip {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--texto-2);
+  font-variant-numeric: tabular-nums;
+}
+.f-chip small {
+  display: block;
+  font-size: 9.5px;
+  font-weight: 500;
+  color: var(--texto-3);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-top: 1px;
+}
+.mov-ic {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  display: grid;
+  place-items: center;
+}
+
 /* ---------- Gastos por categoría (barras horizontales) ---------- */
 .cat-fila { margin: 0 0 13px; }
 .cat-fila:last-child { margin-bottom: 0; }

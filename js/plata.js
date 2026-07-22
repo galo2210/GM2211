@@ -62,48 +62,71 @@ const Plata = (() => {
     const ritmoDiario = diaDelMes > 0 ? Math.round(totalGastos / diaDelMes) : 0;
     const proyeccion = ritmoDiario * 30;
 
+    const hayMovimientos = gastosMes.length > 0 || ingresosMes.length > 0;
     let html = '';
 
-    // ---------- 01 · Fondo Brasil ----------
+    // ---------- 01 · Fondo Brasil (hero) ----------
     html += '<div class="para-ahora pc-plata">' +
-      '<div class="ahora-top"><span class="badge">' + Iconos.get('energia', 24) + '</span>' +
-      '<div style="flex:1;"><p class="etiqueta">Fondo Brasil · enero 2027</p>' +
-      '<h2>' + usd(aportado) + ' <span style="font-size:14px; color:var(--texto-3); font-weight:400;">de ' + usd(meta) + '</span></h2></div>' +
-      '<span style="font-family:var(--mono); font-size:22px; font-weight:700; color:var(--plata);">' + pct + '%</span></div>' +
-      '<div class="barra"><div style="width:' + pct + '%;"></div></div>' +
+      '<div class="ahora-top" style="margin-bottom:10px;"><span class="badge">' + Iconos.get('energia', 24) + '</span>' +
+      '<div style="flex:1;"><p class="etiqueta">Fondo Brasil · enero 2027</p></div>' +
+      '<span class="pill-pct">' + pct + '%</span></div>' +
+      '<p class="hero-monto">' + usd(aportado).replace('USD ', '<small>USD</small> ') +
+      ' <span class="hero-de">de ' + meta.toLocaleString('es-AR') + '</span></p>' +
+      '<div class="barra hitos"><div style="width:' + pct + '%;"></div>' +
+      '<span class="tick" style="left:25%;"></span><span class="tick" style="left:50%;"></span><span class="tick" style="left:75%;"></span></div>' +
       '<p class="detalle">' + (falta > 0
-        ? 'Faltan ' + usd(falta) + ' · ritmo sugerido: <strong>' + usd(porMes) + '/mes</strong> por ' + mesesRestantes + ' meses'
+        ? 'Faltan <strong>' + usd(falta) + '</strong> · ritmo: <strong>' + usd(porMes) + '/mes</strong> × ' + mesesRestantes + ' meses'
         : '¡LLEGASTE! Brasil pagado.') + '</p>' +
-      '<div class="registro-fila" style="border:none; padding:12px 0 0;">' +
-      '<input type="text" inputmode="numeric" id="aporte-monto" placeholder="Aporte de este mes (USD)">' +
+      '<div class="registro-fila" style="border:none; padding:12px 0 0; gap:8px;">' +
+      '<input type="text" inputmode="numeric" id="aporte-monto" placeholder="Aporte del mes (USD)">' +
       '<button class="btn btn-primario" id="btn-aporte">Sumar</button>' +
+      '<button class="btn-mini" id="btn-meta" style="flex:none; min-width:64px;">' + (editandoMeta ? 'Cancelar' : 'Meta') + '</button>' +
       '</div>' +
-      '<button class="btn-volver" id="btn-meta" style="padding:8px 0 0;">' + (editandoMeta ? 'Cancelar' : 'Cambiar meta') + '</button>' +
       (editandoMeta
-        ? '<div class="registro-fila" style="border:none; padding:4px 0 0;">' +
+        ? '<div class="registro-fila" style="border:none; padding:8px 0 0;">' +
           '<input type="text" inputmode="numeric" id="meta-monto" placeholder="Nueva meta (USD)" value="' + meta + '">' +
           '<button class="btn btn-secundario" id="btn-meta-guardar">Guardar</button></div>'
         : '') +
       '</div>';
 
-    // ---------- 02 · El mes en 4 números ----------
-    html += '<p class="filtro-caption" style="margin-top:18px;">Tu mes en números</p>' +
-      '<div class="stats">' +
-      stat('Balance del mes', (balance >= 0 ? '+' : '−') + pesos(Math.abs(balance)).slice(1),
-        'ingresos − gastos − fijos', balance >= 0 ? 'var(--verde)' : 'var(--cuerpo)') +
-      stat('Gastado', pesos(totalGastos),
-        totalGastosAnt > 0
-          ? (totalGastos <= totalGastosAnt ? '−' : '+') + Math.abs(Math.round((totalGastos / totalGastosAnt - 1) * 100)) + '% vs mes pasado'
-          : gastosMes.length + ' movimientos') +
-      stat('Ingresos', pesos(totalIngresos), totalIngresos > 0 ? '' : 'se cargan con el (+)') +
-      stat('Ritmo diario', pesos(ritmoDiario), totalGastos > 0 ? '≈ ' + pesos(proyeccion) + ' al fin de mes' : 'gasto promedio por día') +
-      '</div>';
+    // ---------- 02 · Balance protagonista + trío de stats ----------
+    html += '<p class="filtro-caption" style="margin-top:20px;">' + new Intl.DateTimeFormat('es-AR', { month: 'long' }).format(new Date()).replace(/^./, (c) => c.toUpperCase()) + ', tu mes en números</p>';
+
+    if (!hayMovimientos && totalFijos === 0) {
+      // Mes sin datos: una sola invitación con acción, no cuatro ceros tristes
+      html += '<div class="tarjeta" style="display:flex; gap:13px; align-items:flex-start;">' +
+        '<span style="flex:none; width:42px; height:42px; border-radius:12px; display:grid; place-items:center; color:var(--plata); background:var(--plata-tenue);">' + Iconos.get('plata', 20) + '</span>' +
+        '<div style="flex:1;"><p style="font-size:15.5px; font-weight:600; margin:0 0 4px;">Mes en blanco, todavía.</p>' +
+        '<p style="margin:0 0 12px;">Con el primer movimiento se arma solo: balance, categorías y ritmo diario.</p>' +
+        '<div style="display:flex; gap:8px;">' +
+        '<button class="btn btn-secundario" data-abrir-registro="gasto" style="flex:1; min-height:42px; font-size:14px;">Cargar gasto</button>' +
+        '<button class="btn btn-secundario" data-abrir-registro="ingreso" style="flex:1; min-height:42px; font-size:14px;">Cargar ingreso</button>' +
+        '</div></div></div>';
+    } else {
+      // Balance como tarjeta ancha con su fórmula visible
+      html += '<div class="stat pc-plata balance-hero">' +
+        '<p class="s-label">' + Iconos.get('plata', 13) + 'Balance del mes</p>' +
+        '<p class="s-valor" style="font-size:32px; color:' + (balance >= 0 ? 'var(--verde)' : 'var(--cuerpo)') + ';">' +
+        (balance >= 0 ? '+' : '−') + pesos(Math.abs(balance)).slice(1) + '</p>' +
+        '<div class="formula">' +
+        '<span class="f-chip" style="color:var(--verde);">+ ' + pesos(totalIngresos) + '<small>ingresos</small></span>' +
+        '<span class="f-chip">− ' + pesos(totalGastos) + '<small>gastos</small></span>' +
+        '<span class="f-chip">− ' + pesos(totalFijos) + '<small>fijos</small></span>' +
+        '</div></div>';
+
+      html += '<div class="stats tres" style="margin-top:10px;">' +
+        stat('Gastado', pesos(totalGastos),
+          totalGastosAnt > 0
+            ? (totalGastos <= totalGastosAnt ? '−' : '+') + Math.abs(Math.round((totalGastos / totalGastosAnt - 1) * 100)) + '% vs pasado'
+            : gastosMes.length + ' mov.') +
+        stat('Por día', pesos(ritmoDiario), totalGastos > 0 ? '≈' + pesos(proyeccion) + ' al 30' : '') +
+        stat('Ingresos', pesos(totalIngresos), '') +
+        '</div>';
+    }
 
     // ---------- 03 · Gastos por categoría (barras) ----------
-    html += '<p class="filtro-caption" style="margin-top:18px;">Gastos por categoría</p>';
-    if (gastosMes.length === 0) {
-      html += '<div class="tarjeta vacio"><p>Cero gastos cargados este mes. Entran solos al terminar una compra, o a mano por el (+) → Gasto.</p></div>';
-    } else {
+    if (gastosMes.length > 0) {
+      html += '<p class="filtro-caption" style="margin-top:20px;">Gastos por categoría</p>';
       const porCategoria = {};
       gastosMes.forEach((r) => {
         const cat = r.valor.categoria || 'Otro';
@@ -124,7 +147,7 @@ const Plata = (() => {
     }
 
     // ---------- 04 · Fijos ----------
-    html += '<p class="filtro-caption" style="margin-top:18px;">Fijos mensuales · ' + pesos(totalFijos) + '</p>';
+    html += '<p class="filtro-caption" style="margin-top:20px;">Fijos mensuales' + (totalFijos > 0 ? ' · ' + pesos(totalFijos) : '') + '</p>';
     html += '<div class="tarjeta">';
     if (fijos.length === 0) {
       html += '<p style="margin-bottom:10px;">Alquiler, expensas, servicios: lo que sale sí o sí. Se cargan una vez y entran al balance solos.</p>';
@@ -149,24 +172,23 @@ const Plata = (() => {
       .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
       .slice(0, 8);
 
-    html += '<p class="filtro-caption" style="margin-top:18px;">Últimos movimientos</p>';
-    if (movimientos.length === 0) {
-      html += '<div class="tarjeta vacio"><p>Acá va a aparecer cada gasto, ingreso y aporte, en orden. El (+) alimenta todo.</p></div>';
-    } else {
-      html += '<div class="tarjeta">';
+    if (movimientos.length > 0) {
+      html += '<p class="filtro-caption" style="margin-top:20px;">Últimos movimientos</p>';
+      html += '<div class="tarjeta" style="padding:10px 16px;">';
       movimientos.forEach((m) => {
         const f = new Date(m.fecha);
         const fecha = String(f.getDate()).padStart(2, '0') + '/' + String(f.getMonth() + 1).padStart(2, '0');
         const conf = m.tipo === 'ingreso'
-          ? { icono: 'progreso', color: 'var(--verde)', signo: '+', montoTexto: pesos(m.monto) }
+          ? { icono: 'progreso', color: 'var(--verde)', tenue: 'var(--verde-tenue)', signo: '+', montoTexto: pesos(m.monto) }
           : m.tipo === 'aporte'
-            ? { icono: 'energia', color: 'var(--plata)', signo: '★', montoTexto: usd(m.monto) }
-            : { icono: 'compras', color: 'var(--texto-2)', signo: '−', montoTexto: pesos(m.monto) };
-        html += '<div class="fila-dato">' +
-          '<span style="display:flex; align-items:center; gap:10px;">' +
-          '<span style="color:' + conf.color + '; display:grid; place-items:center;">' + Iconos.get(conf.icono, 16) + '</span>' +
-          '<span>' + fecha + ' · ' + esc(m.detalle || '') + '</span></span>' +
-          '<span class="valor" style="color:' + conf.color + '; font-weight:700;">' + conf.signo + ' ' + conf.montoTexto + '</span></div>';
+            ? { icono: 'energia', color: 'var(--plata)', tenue: 'var(--plata-tenue)', signo: '', montoTexto: usd(m.monto) }
+            : { icono: 'compras', color: 'var(--texto-2)', tenue: 'var(--superficie-2)', signo: '−', montoTexto: pesos(m.monto) };
+        html += '<div class="fila-dato" style="padding:10px 0;">' +
+          '<span style="display:flex; align-items:center; gap:11px; min-width:0;">' +
+          '<span class="mov-ic" style="color:' + conf.color + '; background:' + conf.tenue + ';">' + Iconos.get(conf.icono, 16) + '</span>' +
+          '<span style="min-width:0;"><span style="display:block; font-size:14.5px; font-weight:600; color:var(--texto-1);">' + esc(m.detalle || '') + '</span>' +
+          '<span style="display:block; font-family:var(--mono); font-size:11px; color:var(--texto-3);">' + fecha + '</span></span></span>' +
+          '<span class="valor" style="color:' + conf.color + '; font-weight:700; font-size:14px;">' + conf.signo + ' ' + conf.montoTexto + '</span></div>';
       });
       html += '</div>';
     }
@@ -217,6 +239,10 @@ const Plata = (() => {
           Store.leer('gastos-fijos', []).filter((x) => x.id !== b.dataset.borrarFijo));
         render();
       });
+    });
+
+    cont.querySelectorAll('[data-abrir-registro]').forEach((b) => {
+      b.addEventListener('click', () => Registro.abrirEn(b.dataset.abrirRegistro));
     });
   }
 
