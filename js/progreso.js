@@ -232,7 +232,7 @@ const Progreso = (() => {
     const MARI = { 0: 'Nada', 0.5: 'Medio', 1: 'Entero' };
     const ultimos = registros.slice(-12).reverse();
     if (ultimos.length > 0) {
-      html += '<div class="bloque-cabecera" style="margin-top:8px;"><h3>Últimos registros</h3></div><div class="tarjeta">';
+      html += '<div class="bloque-cabecera" style="margin-top:8px;"><h3>Últimos registros</h3><span class="conteo">× borra</span></div><div class="tarjeta">';
       ultimos.forEach((r) => {
         const f = new Date(r.fecha);
         const fecha = String(f.getDate()).padStart(2, '0') + '/' + String(f.getMonth() + 1).padStart(2, '0');
@@ -246,7 +246,9 @@ const Progreso = (() => {
         if (r.tipo === 'comida' && typeof r.valor === 'object') valor = r.valor.nombre + ' · ' + r.valor.kcal + ' kcal';
         if (r.tipo === 'diario' && typeof r.valor === 'object') valor = '"' + r.valor.respuesta + '"';
         html += '<div class="fila-dato"><span>' + fecha + ' · ' + (ETIQUETA[r.tipo] || r.tipo) + '</span>' +
-          '<span class="valor">' + esc(valor) + '</span></div>';
+          '<span style="display:flex; align-items:center; gap:9px;">' +
+          '<span class="valor">' + esc(valor) + '</span>' +
+          '<button class="btn-borrar" data-borrar-reg="' + r.id + '" aria-label="Borrar registro">&#215;</button></span></div>';
       });
       html += '</div>';
     } else {
@@ -260,6 +262,16 @@ const Progreso = (() => {
     // Tarjetas y botones que abren el (+) directo en su tipo
     cont.querySelectorAll('[data-registrar]').forEach((b) => {
       b.addEventListener('click', () => Registro.abrirEn(b.dataset.registrar));
+    });
+
+    // Borrar cualquier registro
+    cont.querySelectorAll('[data-borrar-reg]').forEach((b) => {
+      b.addEventListener('click', () => {
+        if (!confirm('¿Borrar este registro? No se puede deshacer.')) return;
+        Store.guardar('registros',
+          Store.leer('registros', []).filter((x) => x.id !== b.dataset.borrarReg));
+        render();
+      });
     });
   }
 

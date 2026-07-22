@@ -190,16 +190,17 @@ const Plata = (() => {
       '<button class="btn btn-secundario" id="btn-agregar-fijo">Sumar</button></div>' +
       '</div>';
 
-    // ============ 7 · EXTRACTO ============
+    // ============ 7 · EXTRACTO (con borrar por movimiento) ============
     const movimientos = registros
       .filter((r) => (r.tipo === 'gasto' || r.tipo === 'ingreso') && r.valor)
-      .map((r) => ({ fecha: r.fecha, tipo: r.tipo, monto: r.valor.monto, detalle: r.tipo === 'gasto' ? r.valor.categoria : r.valor.origen }))
-      .concat(aportes.map((a) => ({ fecha: a.fecha, tipo: 'aporte', monto: a.monto, detalle: 'Fondo Brasil' })))
+      .map((r) => ({ id: r.id, src: 'registros', fecha: r.fecha, tipo: r.tipo, monto: r.valor.monto, detalle: r.tipo === 'gasto' ? r.valor.categoria : r.valor.origen }))
+      .concat(aportes.map((a) => ({ id: a.id, src: 'aportes', fecha: a.fecha, tipo: 'aporte', monto: a.monto, detalle: 'Fondo Brasil' })))
       .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
       .slice(0, 10);
 
     if (movimientos.length > 0) {
-      html += '<p class="filtro-caption" style="margin-top:20px;">Movimientos</p><div class="tarjeta" style="padding:6px 16px;">';
+      html += '<p class="filtro-caption" style="margin-top:20px;">Movimientos <span style="letter-spacing:0; text-transform:none; color:var(--texto-3);">· tocá la × para borrar</span></p>' +
+        '<div class="tarjeta" style="padding:6px 16px;">';
       movimientos.forEach((m) => {
         const f = new Date(m.fecha);
         const fecha = String(f.getDate()).padStart(2, '0') + '/' + String(f.getMonth() + 1).padStart(2, '0');
@@ -208,10 +209,13 @@ const Plata = (() => {
           : m.tipo === 'aporte'
             ? { color: 'var(--plata)', signo: '★ ', txt: usd(m.monto) }
             : { color: 'var(--texto-2)', signo: '− ', txt: pesos(m.monto) };
-        html += '<div class="fila-dato" style="padding:10.5px 0;">' +
-          '<span style="font-size:14px;"><span style="font-family:var(--mono); font-size:11.5px; color:var(--texto-3);">' + fecha + '</span>' +
+        html += '<div class="fila-dato" style="padding:8px 0;">' +
+          '<span style="font-size:14px; min-width:0;"><span style="font-family:var(--mono); font-size:11.5px; color:var(--texto-3);">' + fecha + '</span>' +
           '&nbsp;&nbsp;' + esc(m.detalle || '') + '</span>' +
-          '<span class="valor" style="color:' + conf.color + '; font-weight:700;">' + conf.signo + conf.txt + '</span></div>';
+          '<span style="display:flex; align-items:center; gap:9px; flex:none;">' +
+          '<span class="valor" style="color:' + conf.color + '; font-weight:700;">' + conf.signo + conf.txt + '</span>' +
+          '<button class="btn-borrar" data-borrar-mov="' + m.id + '" data-src="' + m.src + '" aria-label="Borrar movimiento">&#215;</button>' +
+          '</span></div>';
       });
       html += '</div>';
     }
@@ -232,9 +236,21 @@ const Plata = (() => {
     });
 
     document.getElementById('qa-aporte').addEventListener('click', () => {
-      const input = document.getElementById('aporte-monto');
-      input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      setTimeout(() => input.focus(), 350);
+      Registro.abrirEn('aporte');
+    });
+
+    cont.querySelectorAll('[data-borrar-mov]').forEach((b) => {
+      b.addEventListener('click', () => {
+        if (!confirm('¿Borrar este movimiento? No se puede deshacer.')) return;
+        if (b.dataset.src === 'aportes') {
+          Store.guardar('brasil-aportes',
+            Store.leer('brasil-aportes', []).filter((x) => x.id !== b.dataset.borrarMov));
+        } else {
+          Store.guardar('registros',
+            Store.leer('registros', []).filter((x) => x.id !== b.dataset.borrarMov));
+        }
+        render();
+      });
     });
 
     document.getElementById('btn-meta').addEventListener('click', () => {

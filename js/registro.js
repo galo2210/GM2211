@@ -12,6 +12,7 @@ const Registro = (() => {
     { tipo: 'marihuana', nombre: 'Marihuana', sub: 'Solo el dato, sin juicio', icono: 'energia', pilar: 'cabeza' },
     { tipo: 'gasto', nombre: 'Gasto', sub: 'Lo que salió, por categoría', icono: 'plata', pilar: 'plata' },
     { tipo: 'ingreso', nombre: 'Ingreso', sub: 'Lo que entró y de dónde', icono: 'plata', pilar: 'plata' },
+    { tipo: 'aporte', nombre: 'Aporte', sub: 'USD al Fondo Brasil', icono: 'energia', pilar: 'plata' },
     { tipo: 'nota', nombre: 'Nota', sub: 'Lo que tengas en la cabeza', icono: 'tuyo', pilar: 'sistema' },
     { tipo: 'tarea', nombre: 'Tarea', sub: 'Con fecha aparece en HOY', icono: 'rutina', pilar: 'sistema' }
   ];
@@ -134,6 +135,11 @@ const Registro = (() => {
         ['Sueldo', 'Negocio', 'Otro'].map((o) => '<option>' + o + '</option>').join('') +
         '</select><button class="btn btn-primario" id="reg-guardar">Guardar</button></div>';
     }
+    if (tipo === 'aporte') {
+      html += '<p class="hoja-ayuda">Dólares que van al Fondo Brasil. Flexible: este mes lo que se pueda.</p>' +
+        '<div class="registro-fila"><input type="text" inputmode="numeric" id="reg-valor" placeholder="420 (USD)">' +
+        '<button class="btn btn-primario" id="reg-guardar">Sumar al fondo</button></div>';
+    }
     if (tipo === 'nota') {
       html += '<p class="hoja-ayuda">Lo que tengas en la cabeza. Queda en TUYO.</p>' +
         '<textarea id="reg-valor" class="campo-texto" rows="3" placeholder="Escribí acá"></textarea>' +
@@ -230,6 +236,13 @@ const Registro = (() => {
           const v = parseInt(String(input.value).replace(/[^\d]/g, ''), 10);
           if (!v || v < 1) { alert('Cargá el monto en pesos.'); return; }
           guardarRegistro('ingreso', { monto: v, origen: document.getElementById('reg-origen').value });
+        }
+        if (tipo === 'aporte') {
+          const v = parseInt(String(input.value).replace(/[^\d]/g, ''), 10);
+          if (!v || v < 1) { alert('Cargá el monto en dólares.'); return; }
+          const aportes = Store.leer('brasil-aportes', []);
+          aportes.push({ id: Store.nuevoId(), monto: v, fecha: new Date().toISOString() });
+          Store.guardar('brasil-aportes', aportes);
         }
         if (tipo === 'nota') {
           const texto = String(input.value).trim();
